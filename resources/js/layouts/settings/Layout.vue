@@ -20,7 +20,7 @@ const sidebarNavItems: NavItem[] = [
         href: editPassword(),
     },
     {
-        title: 'Two-Factor Auth',
+        title: 'Two-Factor Auth prueba',
         href: show(),
     },
     {

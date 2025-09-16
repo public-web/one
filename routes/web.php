@@ -1,15 +1,37 @@
 <?php
 
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome');
+    return Inertia::render('auth/Login');
 })->name('home');
 
 Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
+    $user = auth()->user();
+    $canManageUsers = $user->hasRole('superadmin');
+
+    $roles = [];
+    $users = [];
+    if ($canManageUsers) {
+        $roles = \Spatie\Permission\Models\Role::all(['id', 'name']);
+        $users = \App\Models\User::with('roles')->get();
+    }
+
+    return Inertia::render('Dashboard', [
+        'canManageUsers' => $canManageUsers,
+        'availableRoles' => $roles,
+        'users' => $users
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+});
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

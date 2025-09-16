@@ -29,7 +29,7 @@ defineProps<Props>();
         <DropdownMenuItem :as-child="true">
             <Link class="block w-full" :href="edit()" prefetch as="button">
                 <Settings class="mr-2 h-4 w-4" />
-                Settings
+                Register Users
             </Link>
         </DropdownMenuItem>
     </DropdownMenuGroup>

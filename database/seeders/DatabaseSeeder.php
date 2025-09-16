@@ -13,11 +13,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Ejecutar seeder de roles y permisos
+        $this->call(RolePermissionSeeder::class);
+
         // User::factory(10)->create();
 
-        User::factory()->create([
+        $user = User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        // Asignar rol superadmin al usuario de prueba
+        $user->assignRole('superadmin');
     }
 }
