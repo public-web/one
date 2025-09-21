@@ -49,7 +49,6 @@ const editingUser = ref<User | null>(null);
 const newUser = ref({
     name: '',
     email: '',
-    password: '',
     active: true,
     require_2fa: false,
     role: 'user'
@@ -68,16 +67,15 @@ const createUser = () => {
     router.post('/users', {
         name: newUser.value.name,
         email: newUser.value.email,
-        password: newUser.value.password,
         active: newUser.value.active,
         require_2fa: newUser.value.require_2fa,
         role: newUser.value.role
     }, {
+        preserveState: false,
         onSuccess: () => {
-            isCreateModalOpen.value = false;
-            newUser.value = { name: '', email: '', password: '', active: true, require_2fa: false, role: 'user' };
+            cancelCreate();
         },
-        onError: (errors) => {
+        onError: (errors: any) => {
             console.error('Error creating user:', errors);
         }
     });
@@ -97,11 +95,11 @@ const updateUser = () => {
         require_2fa: editUser.value.require_2fa,
         role: editUser.value.role
     }, {
+        preserveState: false,
         onSuccess: () => {
-            isEditModalOpen.value = false;
-            editingUser.value = null;
+            cancelEdit();
         },
-        onError: (errors) => {
+        onError: (errors: any) => {
             console.error('Error updating user:', errors);
         }
     });
@@ -110,11 +108,11 @@ const updateUser = () => {
 const deleteUser = (userId: number) => {
     if (!confirm('¿Estás seguro de que quieres eliminar este usuario?')) return;
 
-    router.delete(`/users/${userId}`, {}, {
+    router.delete(`/users/${userId}`, {
         onSuccess: () => {
             // Usuario eliminado correctamente
         },
-        onError: (errors) => {
+        onError: (errors: any) => {
             console.error('Error deleting user:', errors);
         }
     });
@@ -130,6 +128,29 @@ const openEditModal = (user: User) => {
         role: user.roles.length > 0 ? user.roles[0].name : 'user'
     };
     isEditModalOpen.value = true;
+};
+
+const cancelEdit = () => {
+    isEditModalOpen.value = false;
+    editingUser.value = null;
+    editUser.value = {
+        name: '',
+        email: '',
+        active: true,
+        require_2fa: false,
+        role: 'user'
+    };
+};
+
+const cancelCreate = () => {
+    isCreateModalOpen.value = false;
+    newUser.value = {
+        name: '',
+        email: '',
+        active: true,
+        require_2fa: false,
+        role: 'user'
+    };
 };
 
 </script>
@@ -162,9 +183,10 @@ const openEditModal = (user: User) => {
                                     <label class="text-sm font-medium">Email</label>
                                     <Input v-model="newUser.email" type="email" placeholder="email@ejemplo.com" />
                                 </div>
-                                <div>
-                                    <label class="text-sm font-medium">Contraseña</label>
-                                    <Input v-model="newUser.password" type="password" placeholder="Contraseña" />
+                                <div class="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                                    <p class="text-sm text-blue-800">
+                                        <strong>Nota:</strong> Se generará automáticamente la contraseña temporal: <code class="bg-blue-100 px-1 rounded">Temporal123!</code>
+                                    </p>
                                 </div>
                                 <div class="flex items-center space-x-2">
                                     <Checkbox v-model="newUser.active" id="newUserActive" />
@@ -183,7 +205,7 @@ const openEditModal = (user: User) => {
                                     </select>
                                 </div>
                                 <div class="flex justify-end space-x-2">
-                                    <Button variant="outline" @click="isCreateModalOpen = false">Cancelar</Button>
+                                    <Button variant="outline" @click="cancelCreate">Cancelar</Button>
                                     <Button @click="createUser">Crear</Button>
                                 </div>
                             </div>
@@ -285,7 +307,7 @@ const openEditModal = (user: User) => {
                             </select>
                         </div>
                         <div class="flex justify-end space-x-2">
-                            <Button variant="outline" @click="isEditModalOpen = false">Cancelar</Button>
+                            <Button variant="outline" @click="cancelEdit">Cancelar</Button>
                             <Button @click="updateUser">Actualizar</Button>
                         </div>
                     </div>

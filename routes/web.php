@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\UserController;
+use App\Http\Middleware\CheckPasswordChanged;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -24,9 +25,9 @@ Route::get('dashboard', function () {
         'availableRoles' => $roles,
         'users' => $users
     ]);
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified', CheckPasswordChanged::class])->name('dashboard');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', CheckPasswordChanged::class])->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');

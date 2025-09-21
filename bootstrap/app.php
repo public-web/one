@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckPasswordChanged;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
@@ -16,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         then: function () {
             Route::middleware('web')
                 ->group(base_path('routes/auth.php'));
-            Route::middleware(['web', 'auth'])
+            Route::middleware(['web', 'auth', CheckPasswordChanged::class])
                 ->group(base_path('routes/settings.php'));
         },
     )

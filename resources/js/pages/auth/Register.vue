@@ -12,12 +12,12 @@ import { LoaderCircle } from 'lucide-vue-next';
 </script>
 
 <template>
-    <AuthBase title="Create an account" description="Enter your details below to create your account">
+    <AuthBase title="Create an account" description="Enter your details below to create your account. A temporary password will be provided.">
         <Head title="Register" />
 
         <Form
             v-bind="RegisteredUserController.store.form()"
-            :reset-on-success="['password', 'password_confirmation']"
+            :reset-on-success="[]"
             v-slot="{ errors, processing }"
             class="flex flex-col gap-6"
         >
@@ -34,27 +34,14 @@ import { LoaderCircle } from 'lucide-vue-next';
                     <InputError :message="errors.email" />
                 </div>
 
-                <div class="grid gap-2">
-                    <Label for="password">Password</Label>
-                    <Input id="password" type="password" required :tabindex="3" autocomplete="new-password" name="password" placeholder="Password" />
-                    <InputError :message="errors.password" />
+                <div class="p-4 bg-blue-50 border border-blue-200 rounded-md">
+                    <p class="text-sm text-blue-800">
+                        <strong>Nota:</strong> Se generará una contraseña temporal automáticamente.
+                        Deberá cambiarla en su primer inicio de sesión por seguridad.
+                    </p>
                 </div>
 
-                <div class="grid gap-2">
-                    <Label for="password_confirmation">Confirm password</Label>
-                    <Input
-                        id="password_confirmation"
-                        type="password"
-                        required
-                        :tabindex="4"
-                        autocomplete="new-password"
-                        name="password_confirmation"
-                        placeholder="Confirm password"
-                    />
-                    <InputError :message="errors.password_confirmation" />
-                </div>
-
-                <Button type="submit" class="mt-2 w-full" tabindex="5" :disabled="processing" data-test="register-user-button">
+                <Button type="submit" class="mt-2 w-full" tabindex="3" :disabled="processing" data-test="register-user-button">
                     <LoaderCircle v-if="processing" class="h-4 w-4 animate-spin" />
                     Create account
                 </Button>
@@ -62,7 +49,7 @@ import { LoaderCircle } from 'lucide-vue-next';
 
             <div class="text-center text-sm text-muted-foreground">
                 Already have an account?
-                <TextLink :href="login()" class="underline underline-offset-4" :tabindex="6">Log in</TextLink>
+                <TextLink :href="login()" class="underline underline-offset-4" :tabindex="4">Log in</TextLink>
             </div>
         </Form>
     </AuthBase>

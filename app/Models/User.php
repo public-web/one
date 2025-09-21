@@ -23,8 +23,12 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'password_changed_at',
         'active',
         'require_2fa',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
+        'two_factor_confirmed_at',
     ];
 
     /**
@@ -48,9 +52,18 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'password_changed_at' => 'datetime',
             'password' => 'hashed',
             'active' => 'boolean',
             'require_2fa' => 'boolean',
         ];
+    }
+
+    /**
+     * Check if the user needs to change their password on first login
+     */
+    public function needsPasswordChange(): bool
+    {
+        return is_null($this->password_changed_at);
     }
 }

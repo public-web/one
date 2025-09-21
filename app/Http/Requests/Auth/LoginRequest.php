@@ -52,6 +52,15 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Verificar si el usuario está activo
+        if (! $user->active) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Su cuenta está desactivada. Contacte al administrador.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
 
         return $user;

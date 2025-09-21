@@ -1,0 +1,109 @@
+<script setup lang="ts">
+import { Head, useForm, router } from '@inertiajs/vue3';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import InputError from '@/components/InputError.vue';
+
+defineProps<{
+    isFirstLogin?: boolean;
+}>();
+
+const form = useForm({
+    current_password: '',
+    password: '',
+    password_confirmation: '',
+});
+
+const submit = () => {
+    router.post('/password/change', form.data(), {
+        onFinish: () => {
+            form.reset('current_password', 'password', 'password_confirmation');
+        },
+        onSuccess: () => {
+            // Handle success
+        },
+        onError: (errors) => {
+            // Set form errors
+            Object.keys(errors).forEach(key => {
+                form.setError(key, errors[key]);
+            });
+        }
+    });
+};
+</script>
+
+<template>
+    <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <Head title="Cambio de Contraseña Requerido" />
+
+        <Card class="w-full max-w-md">
+            <CardHeader class="text-center">
+                <CardTitle class="text-2xl font-bold text-gray-900">
+                    Cambio de Contraseña Requerido
+                </CardTitle>
+                <CardDescription>
+                    <template v-if="isFirstLogin">
+                        Por seguridad, debe cambiar su contraseña temporal antes de continuar.
+                    </template>
+                    <template v-else>
+                        Debe actualizar su contraseña para continuar.
+                    </template>
+                </CardDescription>
+            </CardHeader>
+
+            <CardContent>
+                <form @submit.prevent="submit" class="space-y-4">
+                    <div>
+                        <Label for="current_password">Contraseña Actual</Label>
+                        <Input
+                            id="current_password"
+                            v-model="form.current_password"
+                            type="password"
+                            class="mt-1"
+                            required
+                            autofocus
+                            autocomplete="current-password"
+                        />
+                        <InputError class="mt-2" :message="form.errors.current_password" />
+                    </div>
+
+                    <div>
+                        <Label for="password">Nueva Contraseña</Label>
+                        <Input
+                            id="password"
+                            v-model="form.password"
+                            type="password"
+                            class="mt-1"
+                            required
+                            autocomplete="new-password"
+                        />
+                        <InputError class="mt-2" :message="form.errors.password" />
+                    </div>
+
+                    <div>
+                        <Label for="password_confirmation">Confirmar Nueva Contraseña</Label>
+                        <Input
+                            id="password_confirmation"
+                            v-model="form.password_confirmation"
+                            type="password"
+                            class="mt-1"
+                            required
+                            autocomplete="new-password"
+                        />
+                        <InputError class="mt-2" :message="form.errors.password_confirmation" />
+                    </div>
+
+                    <Button
+                        type="submit"
+                        class="w-full"
+                        :disabled="form.processing"
+                    >
+                        {{ form.processing ? 'Actualizando...' : 'Actualizar Contraseña' }}
+                    </Button>
+                </form>
+            </CardContent>
+        </Card>
+    </div>
+</template>
