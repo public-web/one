@@ -61,6 +61,15 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Verificar si la cuenta ha expirado
+        if ($user->hasExpired()) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Su cuenta ha expirado. Contacte al administrador para renovarla.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
 
         return $user;

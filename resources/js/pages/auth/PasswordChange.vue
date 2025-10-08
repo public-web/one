@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/InputError.vue';
+import { Eye, EyeOff } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 defineProps<{
     isFirstLogin?: boolean;
@@ -15,6 +17,10 @@ const form = useForm({
     password: '',
     password_confirmation: '',
 });
+
+const showCurrentPassword = ref(false);
+const showNewPassword = ref(false);
+const showConfirmPassword = ref(false);
 
 const submit = () => {
     router.post('/password/change', form.data(), {
@@ -57,41 +63,71 @@ const submit = () => {
                 <form @submit.prevent="submit" class="space-y-4">
                     <div>
                         <Label for="current_password">Contraseña Actual</Label>
-                        <Input
-                            id="current_password"
-                            v-model="form.current_password"
-                            type="password"
-                            class="mt-1"
-                            required
-                            autofocus
-                            autocomplete="current-password"
-                        />
+                        <div class="relative">
+                            <Input
+                                id="current_password"
+                                v-model="form.current_password"
+                                :type="showCurrentPassword ? 'text' : 'password'"
+                                class="mt-1 pr-10"
+                                required
+                                autofocus
+                                autocomplete="current-password"
+                            />
+                            <button
+                                type="button"
+                                @click="showCurrentPassword = !showCurrentPassword"
+                                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+                            >
+                                <Eye v-if="!showCurrentPassword" class="h-5 w-5" />
+                                <EyeOff v-else class="h-5 w-5" />
+                            </button>
+                        </div>
                         <InputError class="mt-2" :message="form.errors.current_password" />
                     </div>
 
                     <div>
                         <Label for="password">Nueva Contraseña</Label>
-                        <Input
-                            id="password"
-                            v-model="form.password"
-                            type="password"
-                            class="mt-1"
-                            required
-                            autocomplete="new-password"
-                        />
+                        <div class="relative">
+                            <Input
+                                id="password"
+                                v-model="form.password"
+                                :type="showNewPassword ? 'text' : 'password'"
+                                class="mt-1 pr-10"
+                                required
+                                autocomplete="new-password"
+                            />
+                            <button
+                                type="button"
+                                @click="showNewPassword = !showNewPassword"
+                                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+                            >
+                                <Eye v-if="!showNewPassword" class="h-5 w-5" />
+                                <EyeOff v-else class="h-5 w-5" />
+                            </button>
+                        </div>
                         <InputError class="mt-2" :message="form.errors.password" />
                     </div>
 
                     <div>
                         <Label for="password_confirmation">Confirmar Nueva Contraseña</Label>
-                        <Input
-                            id="password_confirmation"
-                            v-model="form.password_confirmation"
-                            type="password"
-                            class="mt-1"
-                            required
-                            autocomplete="new-password"
-                        />
+                        <div class="relative">
+                            <Input
+                                id="password_confirmation"
+                                v-model="form.password_confirmation"
+                                :type="showConfirmPassword ? 'text' : 'password'"
+                                class="mt-1 pr-10"
+                                required
+                                autocomplete="new-password"
+                            />
+                            <button
+                                type="button"
+                                @click="showConfirmPassword = !showConfirmPassword"
+                                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+                            >
+                                <Eye v-if="!showConfirmPassword" class="h-5 w-5" />
+                                <EyeOff v-else class="h-5 w-5" />
+                            </button>
+                        </div>
                         <InputError class="mt-2" :message="form.errors.password_confirmation" />
                     </div>
 

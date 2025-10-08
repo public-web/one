@@ -30,6 +30,10 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
     })
+    ->withSchedule(function ($schedule) {
+        // Run the deactivate expired users command daily at midnight
+        $schedule->command('users:deactivate-expired')->daily();
+    })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();

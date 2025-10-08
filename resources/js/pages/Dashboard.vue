@@ -16,6 +16,7 @@ interface User {
     name: string;
     email: string;
     active: boolean;
+    expires_at?: string;
     require_2fa: boolean;
     roles: Array<{name: string}>;
 }
@@ -50,6 +51,7 @@ const newUser = ref({
     name: '',
     email: '',
     active: true,
+    expires_at: '',
     require_2fa: false,
     role: 'user'
 });
@@ -58,6 +60,7 @@ const editUser = ref({
     name: '',
     email: '',
     active: true,
+    expires_at: '',
     require_2fa: false,
     role: 'user'
 });
@@ -68,6 +71,7 @@ const createUser = () => {
         name: newUser.value.name,
         email: newUser.value.email,
         active: newUser.value.active,
+        expires_at: newUser.value.expires_at || null,
         require_2fa: newUser.value.require_2fa,
         role: newUser.value.role
     }, {
@@ -92,6 +96,7 @@ const updateUser = () => {
         name: editUser.value.name,
         email: editUser.value.email,
         active: editUser.value.active,
+        expires_at: editUser.value.expires_at || null,
         require_2fa: editUser.value.require_2fa,
         role: editUser.value.role
     }, {
@@ -124,6 +129,7 @@ const openEditModal = (user: User) => {
         name: user.name,
         email: user.email,
         active: user.active,
+        expires_at: user.expires_at ? user.expires_at.split('T')[0] : '',
         require_2fa: user.require_2fa || false,
         role: user.roles.length > 0 ? user.roles[0].name : 'user'
     };
@@ -137,6 +143,7 @@ const cancelEdit = () => {
         name: '',
         email: '',
         active: true,
+        expires_at: '',
         require_2fa: false,
         role: 'user'
     };
@@ -148,6 +155,7 @@ const cancelCreate = () => {
         name: '',
         email: '',
         active: true,
+        expires_at: '',
         require_2fa: false,
         role: 'user'
     };
@@ -192,6 +200,11 @@ const cancelCreate = () => {
                                     <Checkbox v-model="newUser.active" id="newUserActive" />
                                     <label for="newUserActive" class="text-sm font-medium">Usuario activo</label>
                                 </div>
+                                <div>
+                                    <label class="text-sm font-medium">Fecha de caducidad (opcional)</label>
+                                    <Input v-model="newUser.expires_at" type="date" placeholder="Fecha de caducidad" />
+                                    <p class="text-xs text-gray-500 mt-1">Dejar vacío para cuenta sin caducidad</p>
+                                </div>
                                 <div class="flex items-center space-x-2">
                                     <Checkbox v-model="newUser.require_2fa" id="newUser2FA" />
                                     <label for="newUser2FA" class="text-sm font-medium">Requerir autenticación 2FA</label>
@@ -227,6 +240,7 @@ const cancelCreate = () => {
                                         <th class="text-left py-2">Nombre</th>
                                         <th class="text-left py-2">Email</th>
                                         <th class="text-left py-2">Estado</th>
+                                        <th class="text-left py-2">Expira</th>
                                         <th class="text-left py-2">2FA</th>
                                         <th class="text-left py-2">Roles</th>
                                         <th class="text-left py-2">Acciones</th>
@@ -238,8 +252,22 @@ const cancelCreate = () => {
                                         <td class="py-2">{{ user.name }}</td>
                                         <td class="py-2">{{ user.email }}</td>
                                         <td class="py-2">
-                                            <span :class="user.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" class="text-xs px-2 py-1 rounded">
-                                                {{ user.active ? 'Activo' : 'Inactivo' }}
+                                            <span v-if="user.expires_at && new Date(user.expires_at) < new Date()" class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">
+                                                Expirado
+                                            </span>
+                                            <span v-else-if="user.active" class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                                                Activo
+                                            </span>
+                                            <span v-else class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">
+                                                Inactivo
+                                            </span>
+                                        </td>
+                                        <td class="py-2">
+                                            <span v-if="user.expires_at" :class="new Date(user.expires_at) < new Date() ? 'bg-red-100 text-red-800 font-semibold' : 'bg-yellow-100 text-yellow-800'" class="text-xs px-2 py-1 rounded">
+                                                {{ new Date(user.expires_at).toLocaleDateString() }}
+                                            </span>
+                                            <span v-else class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-800">
+                                                Sin límite
                                             </span>
                                         </td>
                                         <td class="py-2">
@@ -293,6 +321,11 @@ const cancelCreate = () => {
                         <div class="flex items-center space-x-2">
                             <Checkbox v-model="editUser.active" id="editUserActive" />
                             <label for="editUserActive" class="text-sm font-medium">Usuario activo</label>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium">Fecha de caducidad (opcional)</label>
+                            <Input v-model="editUser.expires_at" type="date" placeholder="Fecha de caducidad" />
+                            <p class="text-xs text-gray-500 mt-1">Dejar vacío para cuenta sin caducidad</p>
                         </div>
                         <div class="flex items-center space-x-2">
                             <Checkbox v-model="editUser.require_2fa" id="editUser2FA" />

@@ -25,6 +25,7 @@ class User extends Authenticatable
         'password',
         'password_changed_at',
         'active',
+        'expires_at',
         'require_2fa',
         'two_factor_secret',
         'two_factor_recovery_codes',
@@ -53,6 +54,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password_changed_at' => 'datetime',
+            'expires_at' => 'datetime',
             'password' => 'hashed',
             'active' => 'boolean',
             'require_2fa' => 'boolean',
@@ -65,5 +67,21 @@ class User extends Authenticatable
     public function needsPasswordChange(): bool
     {
         return is_null($this->password_changed_at);
+    }
+
+    /**
+     * Check if the user account has expired
+     */
+    public function hasExpired(): bool
+    {
+        return $this->expires_at && $this->expires_at->isPast();
+    }
+
+    /**
+     * Check if the user account is active and not expired
+     */
+    public function isActiveAndNotExpired(): bool
+    {
+        return $this->active && !$this->hasExpired();
     }
 }

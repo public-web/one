@@ -7,15 +7,19 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthBase from '@/layouts/AuthLayout.vue';
-import { register } from '@/routes';
-import { request } from '@/routes/password';
 import { Form, Head } from '@inertiajs/vue3';
-import { LoaderCircle } from 'lucide-vue-next';
+import { LoaderCircle, Eye, EyeOff } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 defineProps<{
     status?: string;
-    canResetPassword: boolean;
 }>();
+
+const showPassword = ref(false);
+
+const togglePasswordVisibility = () => {
+    showPassword.value = !showPassword.value;
+};
 </script>
 
 <template>
@@ -51,17 +55,29 @@ defineProps<{
                 <div class="grid gap-2">
                     <div class="flex items-center justify-between">
                         <Label for="password">Password</Label>
-                        <TextLink v-if="canResetPassword" :href="request()" class="text-sm" :tabindex="5"> Forgot password? </TextLink>
+                        <TextLink href="/forgot-password" class="text-sm font-medium text-blue-600 hover:text-blue-800" :tabindex="5">¿Olvidé mi contraseña?</TextLink>
                     </div>
-                    <Input
-                        id="password"
-                        type="password"
-                        name="password"
-                        required
-                        :tabindex="2"
-                        autocomplete="current-password"
-                        placeholder="Password"
-                    />
+                    <div class="relative">
+                        <Input
+                            id="password"
+                            :type="showPassword ? 'text' : 'password'"
+                            name="password"
+                            required
+                            :tabindex="2"
+                            autocomplete="current-password"
+                            placeholder="Password"
+                            class="pr-10"
+                        />
+                        <button
+                            type="button"
+                            @click="togglePasswordVisibility"
+                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+                            :tabindex="6"
+                        >
+                            <Eye v-if="!showPassword" class="h-5 w-5" />
+                            <EyeOff v-else class="h-5 w-5" />
+                        </button>
+                    </div>
                     <InputError :message="errors.password" />
                 </div>
 
@@ -76,11 +92,6 @@ defineProps<{
                     <LoaderCircle v-if="processing" class="h-4 w-4 animate-spin" />
                     Log in
                 </Button>
-            </div>
-
-            <div class="text-center text-sm text-muted-foreground">
-                Don't have an account?
-                <TextLink :href="register()" :tabindex="5">Sign up</TextLink>
             </div>
         </Form>
     </AuthBase>

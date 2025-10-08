@@ -14,6 +14,12 @@ class UserController extends Controller
     {
         $this->authorize('users.list');
 
+        // Actualizar usuarios expirados automáticamente
+        User::whereNotNull('expires_at')
+            ->where('expires_at', '<', now())
+            ->where('active', true)
+            ->update(['active' => false]);
+
         $users = User::with('roles')->get();
 
         if (request()->wantsJson()) {
@@ -35,6 +41,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'active' => 'boolean',
+            'expires_at' => 'nullable|date|after:today',
             'require_2fa' => 'boolean',
             'role' => 'required|string|in:superadmin,admin,user',
         ]);
@@ -48,6 +55,7 @@ class UserController extends Controller
             'password' => Hash::make($genericPassword),
             'password_changed_at' => null, // Force password change on first login
             'active' => $request->boolean('active', true),
+            'expires_at' => $request->expires_at,
             'require_2fa' => $request->boolean('require_2fa', false),
         ]);
 
@@ -77,6 +85,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'active' => 'boolean',
+            'expires_at' => 'nullable|date|after:today',
             'require_2fa' => 'boolean',
             'role' => 'required|string|in:superadmin,admin,user',
         ]);
@@ -87,6 +96,7 @@ class UserController extends Controller
             'name' => ucwords(strtolower(trim($request->name))),
             'email' => $request->email,
             'active' => $request->boolean('active', true),
+            'expires_at' => $request->expires_at,
             'require_2fa' => $require2fa,
         ]);
 
