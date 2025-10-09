@@ -24,10 +24,10 @@ class CheckPasswordChanged
             $allowedRoutes = [
                 'password.change.show',
                 'password.change.update',
-                'logout'
+                'logout',
             ];
 
-            if (!in_array($request->route()->getName(), $allowedRoutes)) {
+            if (! in_array($request->route()->getName(), $allowedRoutes)) {
                 return redirect()->route('password.change.show');
             }
         }

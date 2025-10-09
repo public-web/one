@@ -16,8 +16,7 @@ class NewUserCreated extends Notification implements ShouldQueue
      */
     public function __construct(
         public string $temporaryPassword
-    ) {
-    }
+    ) {}
 
     /**
      * Get the notification's delivery channels.
@@ -37,10 +36,10 @@ class NewUserCreated extends Notification implements ShouldQueue
         $loginUrl = route('login');
 
         return (new MailMessage)
-            ->subject('Bienvenido a ' . config('app.name'))
-            ->greeting('¡Hola ' . $notifiable->name . '!')
+            ->subject('Bienvenido a '.config('app.name'))
+            ->greeting('¡Hola '.$notifiable->name.'!')
             ->line('Tu cuenta ha sido creada exitosamente.')
-            ->line('**Contraseña temporal:** `' . $this->temporaryPassword . '`')
+            ->line('**Contraseña temporal:** `'.$this->temporaryPassword.'`')
             ->line('Por razones de seguridad, deberás cambiar esta contraseña en tu primer inicio de sesión.')
             ->action('Iniciar Sesión', $loginUrl)
             ->line('Si no solicitaste esta cuenta, por favor ignora este mensaje.');

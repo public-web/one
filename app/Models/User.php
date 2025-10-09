@@ -29,7 +29,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, TwoFactorAuthenticatable, HasRoles, SoftDeletes;
+    use HasFactory, HasRoles, Notifiable, SoftDeletes, TwoFactorAuthenticatable;
 
     /**
      * The attributes that are mass assignable.
@@ -88,8 +88,6 @@ class User extends Authenticatable
 
     /**
      * Check if the user account has expired
-     *
-     * @return bool
      */
     public function hasExpired(): bool
     {
@@ -101,7 +99,7 @@ class User extends Authenticatable
      */
     public function isActiveAndNotExpired(): bool
     {
-        return $this->active && !$this->hasExpired();
+        return $this->active && ! $this->hasExpired();
     }
 
     /**
@@ -138,6 +136,7 @@ class User extends Authenticatable
                 return true;
             }
         }
+
         return false;
     }
 
@@ -147,22 +146,22 @@ class User extends Authenticatable
     public function hasAllPermissions(array $permissions): bool
     {
         foreach ($permissions as $permission) {
-            if (!$this->can($permission)) {
+            if (! $this->can($permission)) {
                 return false;
             }
         }
+
         return true;
     }
 
     /**
      * Get the user's primary role name
-     *
-     * @return string|null
      */
     public function getPrimaryRole(): ?string
     {
         /** @var \Spatie\Permission\Models\Role|null $role */
         $role = $this->roles->first();
+
         return $role?->name;
     }
 
@@ -181,7 +180,7 @@ class User extends Authenticatable
     {
         return $query->where(function ($q) {
             $q->whereNull('expires_at')
-              ->orWhere('expires_at', '>', now());
+                ->orWhere('expires_at', '>', now());
         });
     }
 

@@ -36,6 +36,7 @@ class DeactivateExpiredUsers extends Command
 
         if ($expiredUsers->isEmpty()) {
             $this->info('No expired users found.');
+
             return Command::SUCCESS;
         }
 

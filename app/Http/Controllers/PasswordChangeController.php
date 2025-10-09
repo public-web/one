@@ -17,7 +17,7 @@ class PasswordChangeController extends Controller
     public function show()
     {
         return Inertia::render('Auth/PasswordChange', [
-            'isFirstLogin' => true
+            'isFirstLogin' => true,
         ]);
     }
 
@@ -32,7 +32,7 @@ class PasswordChangeController extends Controller
             'current_password' => [
                 'required',
                 function ($attribute, $value, $fail) use ($user) {
-                    if (!Hash::check($value, $user->password)) {
+                    if (! Hash::check($value, $user->password)) {
                         $fail('La contraseña actual es incorrecta.');
                     }
                 },

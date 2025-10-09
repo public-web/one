@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RolePermissionSeeder extends Seeder
 {
@@ -19,7 +19,7 @@ class RolePermissionSeeder extends Seeder
             'users.create',
             'users.edit',
             'users.delete',
-            'users.update-status'
+            'users.update-status',
         ];
 
         foreach ($permissions as $permission) {
@@ -40,7 +40,7 @@ class RolePermissionSeeder extends Seeder
             'users.list',
             'users.create',
             'users.edit',
-            'users.update-status'
+            'users.update-status',
         ]);
 
         // User: solo puede ver la lista (sin modificar)

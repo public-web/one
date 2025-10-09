@@ -17,13 +17,13 @@ class UserController extends Controller
         if (request()->wantsJson()) {
             return response()->json([
                 'users' => $users,
-                'availableRoles' => $roles
+                'availableRoles' => $roles,
             ]);
         }
 
         return inertia('Users/Index', [
             'users' => $users,
-            'availableRoles' => $roles
+            'availableRoles' => $roles,
         ]);
     }
 
@@ -65,7 +65,7 @@ class UserController extends Controller
             $user->forceFill([
                 'two_factor_secret' => encrypt($secret),
                 'two_factor_recovery_codes' => encrypt(json_encode(collect(range(1, 8))->map(function () {
-                    return \Illuminate\Support\Str::random(10) . '-' . \Illuminate\Support\Str::random(10);
+                    return \Illuminate\Support\Str::random(10).'-'.\Illuminate\Support\Str::random(10);
                 })->toArray())),
                 'two_factor_confirmed_at' => now(),
             ])->save();
@@ -80,7 +80,7 @@ class UserController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
             'active' => 'boolean',
             'expires_at' => 'nullable|date|after:today',
             'require_2fa' => 'boolean',
@@ -98,17 +98,17 @@ class UserController extends Controller
         ]);
 
         // Handle 2FA changes
-        if ($require2fa && !$user->hasEnabledTwoFactorAuthentication()) {
+        if ($require2fa && ! $user->hasEnabledTwoFactorAuthentication()) {
             // If 2FA is being enabled, set it up automatically
             $secret = app(\Laravel\Fortify\TwoFactorAuthenticationProvider::class)->generateSecretKey();
             $user->forceFill([
                 'two_factor_secret' => encrypt($secret),
                 'two_factor_recovery_codes' => encrypt(json_encode(collect(range(1, 8))->map(function () {
-                    return \Illuminate\Support\Str::random(10) . '-' . \Illuminate\Support\Str::random(10);
+                    return \Illuminate\Support\Str::random(10).'-'.\Illuminate\Support\Str::random(10);
                 })->toArray())),
                 'two_factor_confirmed_at' => now(),
             ])->save();
-        } elseif (!$require2fa && $user->hasEnabledTwoFactorAuthentication()) {
+        } elseif (! $require2fa && $user->hasEnabledTwoFactorAuthentication()) {
             // If 2FA is being disabled, clear the 2FA secrets
             $user->forceFill([
                 'two_factor_secret' => null,
