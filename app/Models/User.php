@@ -10,6 +10,22 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Spatie\Permission\Traits\HasRoles;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $email
+ * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property \Illuminate\Support\Carbon|null $password_changed_at
+ * @property \Illuminate\Support\Carbon|null $expires_at
+ * @property bool $active
+ * @property bool $require_2fa
+ * @property string $password
+ * @property string|null $remember_token
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Spatie\Permission\Models\Role[] $roles
+ */
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -72,10 +88,12 @@ class User extends Authenticatable
 
     /**
      * Check if the user account has expired
+     *
+     * @return bool
      */
     public function hasExpired(): bool
     {
-        return $this->expires_at && $this->expires_at->isPast();
+        return $this->expires_at !== null && $this->expires_at->isPast();
     }
 
     /**
@@ -138,10 +156,14 @@ class User extends Authenticatable
 
     /**
      * Get the user's primary role name
+     *
+     * @return string|null
      */
     public function getPrimaryRole(): ?string
     {
-        return $this->roles->first()?->name;
+        /** @var \Spatie\Permission\Models\Role|null $role */
+        $role = $this->roles->first();
+        return $role?->name;
     }
 
     /**

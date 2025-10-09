@@ -42,6 +42,7 @@ class DeactivateExpiredUsers extends Command
         $count = $expiredUsers->count();
         $this->info("Found {$count} expired user(s):");
 
+        /** @var \App\Models\User $user */
         foreach ($expiredUsers as $user) {
             $this->line("- {$user->name} ({$user->email}) - Expired: {$user->expires_at->format('Y-m-d H:i:s')}");
 

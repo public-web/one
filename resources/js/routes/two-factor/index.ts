@@ -342,7 +342,7 @@ qrCode.form = qrCodeForm
 
 /**
 * @see \Laravel\Fortify\Http\Controllers\TwoFactorSecretKeyController::secretKey
-* @see vendor/laravel/fortify/src/Http/Controllers/TwoFactorSecretKeyController.php:18
+* @see vendor/laravel/fortify/src/Http/Controllers/TwoFactorSecretKeyController.php:17
 * @route '/user/two-factor-secret-key'
 */
 export const secretKey = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -357,7 +357,7 @@ secretKey.definition = {
 
 /**
 * @see \Laravel\Fortify\Http\Controllers\TwoFactorSecretKeyController::secretKey
-* @see vendor/laravel/fortify/src/Http/Controllers/TwoFactorSecretKeyController.php:18
+* @see vendor/laravel/fortify/src/Http/Controllers/TwoFactorSecretKeyController.php:17
 * @route '/user/two-factor-secret-key'
 */
 secretKey.url = (options?: RouteQueryOptions) => {
@@ -366,7 +366,7 @@ secretKey.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \Laravel\Fortify\Http\Controllers\TwoFactorSecretKeyController::secretKey
-* @see vendor/laravel/fortify/src/Http/Controllers/TwoFactorSecretKeyController.php:18
+* @see vendor/laravel/fortify/src/Http/Controllers/TwoFactorSecretKeyController.php:17
 * @route '/user/two-factor-secret-key'
 */
 secretKey.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -376,7 +376,7 @@ secretKey.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \Laravel\Fortify\Http\Controllers\TwoFactorSecretKeyController::secretKey
-* @see vendor/laravel/fortify/src/Http/Controllers/TwoFactorSecretKeyController.php:18
+* @see vendor/laravel/fortify/src/Http/Controllers/TwoFactorSecretKeyController.php:17
 * @route '/user/two-factor-secret-key'
 */
 secretKey.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -386,7 +386,7 @@ secretKey.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \Laravel\Fortify\Http\Controllers\TwoFactorSecretKeyController::secretKey
-* @see vendor/laravel/fortify/src/Http/Controllers/TwoFactorSecretKeyController.php:18
+* @see vendor/laravel/fortify/src/Http/Controllers/TwoFactorSecretKeyController.php:17
 * @route '/user/two-factor-secret-key'
 */
 const secretKeyForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -396,7 +396,7 @@ const secretKeyForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> 
 
 /**
 * @see \Laravel\Fortify\Http\Controllers\TwoFactorSecretKeyController::secretKey
-* @see vendor/laravel/fortify/src/Http/Controllers/TwoFactorSecretKeyController.php:18
+* @see vendor/laravel/fortify/src/Http/Controllers/TwoFactorSecretKeyController.php:17
 * @route '/user/two-factor-secret-key'
 */
 secretKeyForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -406,7 +406,7 @@ secretKeyForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 
 /**
 * @see \Laravel\Fortify\Http\Controllers\TwoFactorSecretKeyController::secretKey
-* @see vendor/laravel/fortify/src/Http/Controllers/TwoFactorSecretKeyController.php:18
+* @see vendor/laravel/fortify/src/Http/Controllers/TwoFactorSecretKeyController.php:17
 * @route '/user/two-factor-secret-key'
 */
 secretKeyForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -423,7 +423,7 @@ secretKey.form = secretKeyForm
 
 /**
 * @see \Laravel\Fortify\Http\Controllers\RecoveryCodeController::recoveryCodes
-* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:20
+* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:19
 * @route '/user/two-factor-recovery-codes'
 */
 export const recoveryCodes = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -438,7 +438,7 @@ recoveryCodes.definition = {
 
 /**
 * @see \Laravel\Fortify\Http\Controllers\RecoveryCodeController::recoveryCodes
-* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:20
+* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:19
 * @route '/user/two-factor-recovery-codes'
 */
 recoveryCodes.url = (options?: RouteQueryOptions) => {
@@ -447,7 +447,7 @@ recoveryCodes.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \Laravel\Fortify\Http\Controllers\RecoveryCodeController::recoveryCodes
-* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:20
+* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:19
 * @route '/user/two-factor-recovery-codes'
 */
 recoveryCodes.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -457,7 +457,7 @@ recoveryCodes.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \Laravel\Fortify\Http\Controllers\RecoveryCodeController::recoveryCodes
-* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:20
+* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:19
 * @route '/user/two-factor-recovery-codes'
 */
 recoveryCodes.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -467,7 +467,7 @@ recoveryCodes.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 
 /**
 * @see \Laravel\Fortify\Http\Controllers\RecoveryCodeController::recoveryCodes
-* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:20
+* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:19
 * @route '/user/two-factor-recovery-codes'
 */
 const recoveryCodesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -477,7 +477,7 @@ const recoveryCodesForm = (options?: RouteQueryOptions): RouteFormDefinition<'ge
 
 /**
 * @see \Laravel\Fortify\Http\Controllers\RecoveryCodeController::recoveryCodes
-* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:20
+* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:19
 * @route '/user/two-factor-recovery-codes'
 */
 recoveryCodesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -487,7 +487,7 @@ recoveryCodesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'
 
 /**
 * @see \Laravel\Fortify\Http\Controllers\RecoveryCodeController::recoveryCodes
-* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:20
+* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:19
 * @route '/user/two-factor-recovery-codes'
 */
 recoveryCodesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -504,7 +504,7 @@ recoveryCodes.form = recoveryCodesForm
 
 /**
 * @see \Laravel\Fortify\Http\Controllers\RecoveryCodeController::regenerateRecoveryCodes
-* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:39
+* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:38
 * @route '/user/two-factor-recovery-codes'
 */
 export const regenerateRecoveryCodes = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -519,7 +519,7 @@ regenerateRecoveryCodes.definition = {
 
 /**
 * @see \Laravel\Fortify\Http\Controllers\RecoveryCodeController::regenerateRecoveryCodes
-* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:39
+* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:38
 * @route '/user/two-factor-recovery-codes'
 */
 regenerateRecoveryCodes.url = (options?: RouteQueryOptions) => {
@@ -528,7 +528,7 @@ regenerateRecoveryCodes.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \Laravel\Fortify\Http\Controllers\RecoveryCodeController::regenerateRecoveryCodes
-* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:39
+* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:38
 * @route '/user/two-factor-recovery-codes'
 */
 regenerateRecoveryCodes.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -538,7 +538,7 @@ regenerateRecoveryCodes.post = (options?: RouteQueryOptions): RouteDefinition<'p
 
 /**
 * @see \Laravel\Fortify\Http\Controllers\RecoveryCodeController::regenerateRecoveryCodes
-* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:39
+* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:38
 * @route '/user/two-factor-recovery-codes'
 */
 const regenerateRecoveryCodesForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -548,7 +548,7 @@ const regenerateRecoveryCodesForm = (options?: RouteQueryOptions): RouteFormDefi
 
 /**
 * @see \Laravel\Fortify\Http\Controllers\RecoveryCodeController::regenerateRecoveryCodes
-* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:39
+* @see vendor/laravel/fortify/src/Http/Controllers/RecoveryCodeController.php:38
 * @route '/user/two-factor-recovery-codes'
 */
 regenerateRecoveryCodesForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
