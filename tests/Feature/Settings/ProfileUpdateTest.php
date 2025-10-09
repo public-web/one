@@ -64,7 +64,13 @@ test('user can delete their account', function () {
         ->assertRedirect(route('home'));
 
     $this->assertGuest();
-    expect($user->fresh())->toBeNull();
+
+    // User is soft deleted, so fresh() without withTrashed() returns null
+    expect(User::find($user->id))->toBeNull();
+
+    // But the user still exists in the database with deleted_at set
+    expect(User::withTrashed()->find($user->id))->not->toBeNull();
+    expect(User::withTrashed()->find($user->id)->trashed())->toBeTrue();
 });
 
 test('correct password must be provided to delete account', function () {

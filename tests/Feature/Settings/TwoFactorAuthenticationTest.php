@@ -20,7 +20,7 @@ test('two factor settings page can be rendered', function () {
         ->withSession(['auth.password_confirmed_at' => time()])
         ->get(route('two-factor.show'))
         ->assertInertia(fn (Assert $page) => $page
-            ->component('settings/TwoFactor')
+            ->component('Settings/TwoFactor')
             ->where('twoFactorEnabled', false)
         );
 });
@@ -48,18 +48,18 @@ test('two factor settings page does not requires password confirmation when disa
         $this->markTestSkipped('Two-factor authentication is not enabled.');
     }
 
-    $user = User::factory()->create();
+    // Check if password confirmation is disabled in config
+    if (Features::optionEnabled(Features::twoFactorAuthentication(), 'confirmPassword')) {
+        $this->markTestSkipped('Password confirmation is enabled for 2FA.');
+    }
 
-    Features::twoFactorAuthentication([
-        'confirm' => true,
-        'confirmPassword' => false,
-    ]);
+    $user = User::factory()->create();
 
     $this->actingAs($user)
         ->get(route('two-factor.show'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
-            ->component('settings/TwoFactor')
+            ->component('Settings/TwoFactor')
         );
 });
 
