@@ -1,8 +1,8 @@
-import Auth from './Auth'
-import DashboardController from './DashboardController'
-import UserController from './UserController'
-import Settings from './Settings'
-import PasswordChangeController from './PasswordChangeController'
+import Auth from './Auth';
+import DashboardController from './DashboardController';
+import PasswordChangeController from './PasswordChangeController';
+import Settings from './Settings';
+import UserController from './UserController';
 
 const Controllers = {
     Auth: Object.assign(Auth, Auth),
@@ -10,6 +10,6 @@ const Controllers = {
     UserController: Object.assign(UserController, UserController),
     Settings: Object.assign(Settings, Settings),
     PasswordChangeController: Object.assign(PasswordChangeController, PasswordChangeController),
-}
+};
 
-export default Controllers
+export default Controllers;
