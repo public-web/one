@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { Head, useForm, router } from '@inertiajs/vue3';
+import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import InputError from '@/components/InputError.vue';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import { Eye, EyeOff } from 'lucide-vue-next';
 import { ref } from 'vue';
 
@@ -32,30 +32,24 @@ const submit = () => {
         },
         onError: (errors) => {
             // Set form errors
-            Object.keys(errors).forEach(key => {
+            Object.keys(errors).forEach((key) => {
                 form.setError(key, errors[key]);
             });
-        }
+        },
     });
 };
 </script>
 
 <template>
-    <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
         <Head title="Cambio de Contraseña Requerido" />
 
         <Card class="w-full max-w-md">
             <CardHeader class="text-center">
-                <CardTitle class="text-2xl font-bold text-gray-900">
-                    Cambio de Contraseña Requerido
-                </CardTitle>
+                <CardTitle class="text-2xl font-bold text-gray-900"> Cambio de Contraseña Requerido </CardTitle>
                 <CardDescription>
-                    <template v-if="isFirstLogin">
-                        Por seguridad, debe cambiar su contraseña temporal antes de continuar.
-                    </template>
-                    <template v-else>
-                        Debe actualizar su contraseña para continuar.
-                    </template>
+                    <template v-if="isFirstLogin"> Por seguridad, debe cambiar su contraseña temporal antes de continuar. </template>
+                    <template v-else> Debe actualizar su contraseña para continuar. </template>
                 </CardDescription>
             </CardHeader>
 
@@ -131,11 +125,7 @@ const submit = () => {
                         <InputError class="mt-2" :message="form.errors.password_confirmation" />
                     </div>
 
-                    <Button
-                        type="submit"
-                        class="w-full"
-                        :disabled="form.processing"
-                    >
+                    <Button type="submit" class="w-full" :disabled="form.processing">
                         {{ form.processing ? 'Actualizando...' : 'Actualizar Contraseña' }}
                     </Button>
                 </form>

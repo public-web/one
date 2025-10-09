@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { login } from '@/routes';
-import { useForm, Head } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
 
 const form = useForm({
@@ -37,10 +37,10 @@ const submit = () => {
                     <InputError :message="form.errors.email" />
                 </div>
 
-                <div class="p-4 bg-blue-50 border border-blue-200 rounded-md">
+                <div class="rounded-md border border-blue-200 bg-blue-50 p-4">
                     <p class="text-sm text-blue-800">
-                        <strong>Nota:</strong> Se generará una contraseña temporal automáticamente.
-                        Deberá cambiarla en su primer inicio de sesión por seguridad.
+                        <strong>Nota:</strong> Se generará una contraseña temporal automáticamente. Deberá cambiarla en su primer inicio de sesión por
+                        seguridad.
                     </p>
                 </div>
 

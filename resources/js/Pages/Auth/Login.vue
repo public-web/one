@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { Form, Head } from '@inertiajs/vue3';
-import { LoaderCircle, Eye, EyeOff } from 'lucide-vue-next';
+import { Eye, EyeOff, LoaderCircle } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 defineProps<{
@@ -55,7 +55,9 @@ const togglePasswordVisibility = () => {
                 <div class="grid gap-2">
                     <div class="flex items-center justify-between">
                         <Label for="password">Password</Label>
-                        <TextLink href="/forgot-password" class="text-sm font-medium text-blue-600 hover:text-blue-800" :tabindex="5">¿Olvidé mi contraseña?</TextLink>
+                        <TextLink href="/forgot-password" class="text-sm font-medium text-blue-600 hover:text-blue-800" :tabindex="5"
+                            >¿Olvidé mi contraseña?</TextLink
+                        >
                     </div>
                     <div class="relative">
                         <Input

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import UserInfo from '@/components/UserInfo.vue';
 import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { logout, appearance } from '@/routes';
+import { appearance, logout } from '@/routes';
 import type { User } from '@/types';
 import { Link, router } from '@inertiajs/vue3';
 import { LogOut, Settings } from 'lucide-vue-next';
@@ -11,9 +11,13 @@ interface Props {
 }
 
 const handleLogout = () => {
-    router.post(logout().url, {}, {
-        onFinish: () => router.flushAll()
-    });
+    router.post(
+        logout().url,
+        {},
+        {
+            onFinish: () => router.flushAll(),
+        },
+    );
 };
 
 defineProps<Props>();

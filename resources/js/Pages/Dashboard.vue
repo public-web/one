@@ -1,14 +1,14 @@
 <script setup lang="ts">
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
-import { Head, usePage, router } from '@inertiajs/vue3';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ref, computed } from 'vue';
+import { Head, router, usePage } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 import PlaceholderPattern from '../components/PlaceholderPattern.vue';
 
 interface User {
@@ -18,7 +18,7 @@ interface User {
     active: boolean;
     expires_at?: string;
     require_2fa: boolean;
-    roles: Array<{name: string}>;
+    roles: Array<{ name: string }>;
 }
 
 interface Role {
@@ -53,7 +53,7 @@ const newUser = ref({
     active: true,
     expires_at: '',
     require_2fa: false,
-    role: 'user'
+    role: 'user',
 });
 
 const editUser = ref({
@@ -62,29 +62,31 @@ const editUser = ref({
     active: true,
     expires_at: '',
     require_2fa: false,
-    role: 'user'
+    role: 'user',
 });
 
-
 const createUser = () => {
-    router.post('/users', {
-        name: newUser.value.name,
-        email: newUser.value.email,
-        active: newUser.value.active,
-        expires_at: newUser.value.expires_at || null,
-        require_2fa: newUser.value.require_2fa,
-        role: newUser.value.role
-    }, {
-        preserveState: false,
-        onSuccess: () => {
-            cancelCreate();
+    router.post(
+        '/users',
+        {
+            name: newUser.value.name,
+            email: newUser.value.email,
+            active: newUser.value.active,
+            expires_at: newUser.value.expires_at || null,
+            require_2fa: newUser.value.require_2fa,
+            role: newUser.value.role,
         },
-        onError: (errors: any) => {
-            console.error('Error creating user:', errors);
-        }
-    });
+        {
+            preserveState: false,
+            onSuccess: () => {
+                cancelCreate();
+            },
+            onError: (errors: any) => {
+                console.error('Error creating user:', errors);
+            },
+        },
+    );
 };
-
 
 const updateUser = () => {
     if (!editingUser.value) {
@@ -92,22 +94,26 @@ const updateUser = () => {
         return;
     }
 
-    router.put(`/users/${editingUser.value.id}`, {
-        name: editUser.value.name,
-        email: editUser.value.email,
-        active: editUser.value.active,
-        expires_at: editUser.value.expires_at || null,
-        require_2fa: editUser.value.require_2fa,
-        role: editUser.value.role
-    }, {
-        preserveState: false,
-        onSuccess: () => {
-            cancelEdit();
+    router.put(
+        `/users/${editingUser.value.id}`,
+        {
+            name: editUser.value.name,
+            email: editUser.value.email,
+            active: editUser.value.active,
+            expires_at: editUser.value.expires_at || null,
+            require_2fa: editUser.value.require_2fa,
+            role: editUser.value.role,
         },
-        onError: (errors: any) => {
-            console.error('Error updating user:', errors);
-        }
-    });
+        {
+            preserveState: false,
+            onSuccess: () => {
+                cancelEdit();
+            },
+            onError: (errors: any) => {
+                console.error('Error updating user:', errors);
+            },
+        },
+    );
 };
 
 const deleteUser = (userId: number) => {
@@ -119,7 +125,7 @@ const deleteUser = (userId: number) => {
         },
         onError: (errors: any) => {
             console.error('Error deleting user:', errors);
-        }
+        },
     });
 };
 
@@ -131,7 +137,7 @@ const openEditModal = (user: User) => {
         active: user.active,
         expires_at: user.expires_at ? user.expires_at.split('T')[0] : '',
         require_2fa: user.require_2fa || false,
-        role: user.roles.length > 0 ? user.roles[0].name : 'user'
+        role: user.roles.length > 0 ? user.roles[0].name : 'user',
     };
     isEditModalOpen.value = true;
 };
@@ -145,7 +151,7 @@ const cancelEdit = () => {
         active: true,
         expires_at: '',
         require_2fa: false,
-        role: 'user'
+        role: 'user',
     };
 };
 
@@ -157,10 +163,9 @@ const cancelCreate = () => {
         active: true,
         expires_at: '',
         require_2fa: false,
-        role: 'user'
+        role: 'user',
     };
 };
-
 </script>
 
 <template>
@@ -170,7 +175,7 @@ const cancelCreate = () => {
         <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
             <!-- Gestión de Usuarios - Solo visible para superadmin -->
             <div v-if="canManageUsers" class="space-y-4">
-                <div class="flex justify-between items-center">
+                <div class="flex items-center justify-between">
                     <h2 class="text-2xl font-bold">Gestión de Usuarios</h2>
 
                     <!-- Botón Crear Usuario -->
@@ -191,9 +196,10 @@ const cancelCreate = () => {
                                     <label class="text-sm font-medium">Email</label>
                                     <Input v-model="newUser.email" type="email" placeholder="email@ejemplo.com" />
                                 </div>
-                                <div class="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                                <div class="rounded-md border border-blue-200 bg-blue-50 p-3">
                                     <p class="text-sm text-blue-800">
-                                        <strong>Nota:</strong> Se generará una contraseña temporal automáticamente y se enviará por correo electrónico al usuario.
+                                        <strong>Nota:</strong> Se generará una contraseña temporal automáticamente y se enviará por correo electrónico
+                                        al usuario.
                                     </p>
                                 </div>
                                 <div class="flex items-center space-x-2">
@@ -203,7 +209,7 @@ const cancelCreate = () => {
                                 <div>
                                     <label class="text-sm font-medium">Fecha de caducidad (opcional)</label>
                                     <Input v-model="newUser.expires_at" type="date" placeholder="Fecha de caducidad" />
-                                    <p class="text-xs text-gray-500 mt-1">Dejar vacío para cuenta sin caducidad</p>
+                                    <p class="mt-1 text-xs text-gray-500">Dejar vacío para cuenta sin caducidad</p>
                                 </div>
                                 <div class="flex items-center space-x-2">
                                     <Checkbox v-model="newUser.require_2fa" id="newUser2FA" />
@@ -211,7 +217,10 @@ const cancelCreate = () => {
                                 </div>
                                 <div>
                                     <label class="text-sm font-medium">Rol</label>
-                                    <select v-model="newUser.role" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <select
+                                        v-model="newUser.role"
+                                        class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    >
                                         <option v-for="role in availableRoles" :key="role.id" :value="role.name">
                                             {{ role.name.charAt(0).toUpperCase() + role.name.slice(1) }}
                                         </option>
@@ -236,14 +245,14 @@ const cancelCreate = () => {
                             <table class="w-full">
                                 <thead>
                                     <tr class="border-b">
-                                        <th class="text-left py-2">ID</th>
-                                        <th class="text-left py-2">Nombre</th>
-                                        <th class="text-left py-2">Email</th>
-                                        <th class="text-left py-2">Estado</th>
-                                        <th class="text-left py-2">Expira</th>
-                                        <th class="text-left py-2">2FA</th>
-                                        <th class="text-left py-2">Roles</th>
-                                        <th class="text-left py-2">Acciones</th>
+                                        <th class="py-2 text-left">ID</th>
+                                        <th class="py-2 text-left">Nombre</th>
+                                        <th class="py-2 text-left">Email</th>
+                                        <th class="py-2 text-left">Estado</th>
+                                        <th class="py-2 text-left">Expira</th>
+                                        <th class="py-2 text-left">2FA</th>
+                                        <th class="py-2 text-left">Roles</th>
+                                        <th class="py-2 text-left">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -252,49 +261,57 @@ const cancelCreate = () => {
                                         <td class="py-2">{{ user.name }}</td>
                                         <td class="py-2">{{ user.email }}</td>
                                         <td class="py-2">
-                                            <span v-if="user.expires_at && new Date(user.expires_at) < new Date()" class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">
+                                            <span
+                                                v-if="user.expires_at && new Date(user.expires_at) < new Date()"
+                                                class="rounded bg-red-100 px-2 py-1 text-xs text-red-800"
+                                            >
                                                 Expirado
                                             </span>
-                                            <span v-else-if="user.active" class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                                            <span v-else-if="user.active" class="rounded bg-green-100 px-2 py-1 text-xs text-green-800">
                                                 Activo
                                             </span>
-                                            <span v-else class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">
-                                                Inactivo
-                                            </span>
+                                            <span v-else class="rounded bg-red-100 px-2 py-1 text-xs text-red-800"> Inactivo </span>
                                         </td>
                                         <td class="py-2">
-                                            <span v-if="user.expires_at" :class="new Date(user.expires_at) < new Date() ? 'bg-red-100 text-red-800 font-semibold' : 'bg-yellow-100 text-yellow-800'" class="text-xs px-2 py-1 rounded">
+                                            <span
+                                                v-if="user.expires_at"
+                                                :class="
+                                                    new Date(user.expires_at) < new Date()
+                                                        ? 'bg-red-100 font-semibold text-red-800'
+                                                        : 'bg-yellow-100 text-yellow-800'
+                                                "
+                                                class="rounded px-2 py-1 text-xs"
+                                            >
                                                 {{ new Date(user.expires_at).toLocaleDateString() }}
                                             </span>
-                                            <span v-else class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-800">
-                                                Sin límite
-                                            </span>
+                                            <span v-else class="rounded bg-gray-100 px-2 py-1 text-xs text-gray-800"> Sin límite </span>
                                         </td>
                                         <td class="py-2">
-                                            <span :class="user.require_2fa ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'" class="text-xs px-2 py-1 rounded">
+                                            <span
+                                                :class="user.require_2fa ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'"
+                                                class="rounded px-2 py-1 text-xs"
+                                            >
                                                 {{ user.require_2fa ? 'Requerido' : 'Opcional' }}
                                             </span>
                                         </td>
                                         <td class="py-2">
-                                            <span v-for="role in user.roles" :key="role.name" class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mr-1">
+                                            <span
+                                                v-for="role in user.roles"
+                                                :key="role.name"
+                                                class="mr-1 inline-block rounded bg-blue-100 px-2 py-1 text-xs text-blue-800"
+                                            >
                                                 {{ role.name }}
                                             </span>
                                         </td>
                                         <td class="py-2">
                                             <div class="flex space-x-2">
-                                                <Button size="sm" variant="outline" @click="openEditModal(user)">
-                                                    Editar
-                                                </Button>
-                                                <Button size="sm" variant="destructive" @click="deleteUser(user.id)">
-                                                    Eliminar
-                                                </Button>
+                                                <Button size="sm" variant="outline" @click="openEditModal(user)"> Editar </Button>
+                                                <Button size="sm" variant="destructive" @click="deleteUser(user.id)"> Eliminar </Button>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr v-if="users.length === 0">
-                                        <td colspan="8" class="text-center py-4 text-gray-500">
-                                            No hay usuarios registrados
-                                        </td>
+                                        <td colspan="8" class="py-4 text-center text-gray-500">No hay usuarios registrados</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -325,7 +342,7 @@ const cancelCreate = () => {
                         <div>
                             <label class="text-sm font-medium">Fecha de caducidad (opcional)</label>
                             <Input v-model="editUser.expires_at" type="date" placeholder="Fecha de caducidad" />
-                            <p class="text-xs text-gray-500 mt-1">Dejar vacío para cuenta sin caducidad</p>
+                            <p class="mt-1 text-xs text-gray-500">Dejar vacío para cuenta sin caducidad</p>
                         </div>
                         <div class="flex items-center space-x-2">
                             <Checkbox v-model="editUser.require_2fa" id="editUser2FA" />
@@ -333,7 +350,10 @@ const cancelCreate = () => {
                         </div>
                         <div>
                             <label class="text-sm font-medium">Rol</label>
-                            <select v-model="editUser.role" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <select
+                                v-model="editUser.role"
+                                class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            >
                                 <option v-for="role in availableRoles" :key="role.id" :value="role.name">
                                     {{ role.name.charAt(0).toUpperCase() + role.name.slice(1) }}
                                 </option>
@@ -359,7 +379,10 @@ const cancelCreate = () => {
                     <PlaceholderPattern />
                 </div>
             </div>
-            <div v-if="!canManageUsers" class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
+            <div
+                v-if="!canManageUsers"
+                class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border"
+            >
                 <PlaceholderPattern />
             </div>
         </div>
