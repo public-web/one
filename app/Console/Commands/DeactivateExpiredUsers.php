@@ -28,8 +28,8 @@ class DeactivateExpiredUsers extends Command
     {
         $this->info('Checking for expired users...');
 
-        // Find users who are active but have expired
-        $expiredUsers = User::where('active', true)
+        // Find users who are active but have expired - using new scopes and indexed columns
+        $expiredUsers = User::active()
             ->whereNotNull('expires_at')
             ->where('expires_at', '<=', now())
             ->get();
@@ -39,7 +39,8 @@ class DeactivateExpiredUsers extends Command
             return Command::SUCCESS;
         }
 
-        $this->info("Found {$expiredUsers->count()} expired user(s):");
+        $count = $expiredUsers->count();
+        $this->info("Found {$count} expired user(s):");
 
         foreach ($expiredUsers as $user) {
             $this->line("- {$user->name} ({$user->email}) - Expired: {$user->expires_at->format('Y-m-d H:i:s')}");
@@ -48,7 +49,7 @@ class DeactivateExpiredUsers extends Command
             $user->update(['active' => false]);
         }
 
-        $this->info("{$expiredUsers->count()} user(s) have been deactivated.");
+        $this->info("{$count} user(s) have been deactivated.");
 
         return Command::SUCCESS;
     }

@@ -4,38 +4,32 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class UserController extends Controller
 {
-    use AuthorizesRequests;
     public function index()
     {
-        $this->authorize('users.list');
-
-        // Actualizar usuarios expirados automáticamente
-        User::whereNotNull('expires_at')
-            ->where('expires_at', '<', now())
-            ->where('active', true)
-            ->update(['active' => false]);
+        $this->authorize('viewAny', User::class);
 
         $users = User::with('roles')->get();
+        $roles = \Spatie\Permission\Models\Role::all(['id', 'name']);
 
         if (request()->wantsJson()) {
             return response()->json([
-                'users' => $users
+                'users' => $users,
+                'availableRoles' => $roles
             ]);
         }
 
-        return inertia('Dashboard', [
-            'users' => $users
+        return inertia('Users/Index', [
+            'users' => $users,
+            'availableRoles' => $roles
         ]);
     }
 
     public function store(Request $request)
     {
-        $this->authorize('users.create');
+        $this->authorize('create', User::class);
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -46,13 +40,13 @@ class UserController extends Controller
             'role' => 'required|string|in:superadmin,admin,user',
         ]);
 
-        // Generate a generic password for new users
-        $genericPassword = 'Temporal123!';
+        // Generate a temporary password for new users
+        $temporaryPassword = config('app.default_password');
 
         $user = User::create([
             'name' => ucwords(strtolower(trim($request->name))),
             'email' => $request->email,
-            'password' => Hash::make($genericPassword),
+            'password' => $temporaryPassword, // Auto-hashed by 'hashed' cast
             'password_changed_at' => null, // Force password change on first login
             'active' => $request->boolean('active', true),
             'expires_at' => $request->expires_at,
@@ -61,6 +55,9 @@ class UserController extends Controller
 
         // Asignar rol al usuario
         $user->assignRole($request->role);
+
+        // Send welcome email with temporary password
+        $user->notify(new \App\Notifications\NewUserCreated($temporaryPassword));
 
         // If 2FA is required, enable it automatically
         if ($request->boolean('require_2fa', false)) {
@@ -79,7 +76,7 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        $this->authorize('users.edit');
+        $this->authorize('update', $user);
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -128,10 +125,38 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        $this->authorize('users.delete');
+        $this->authorize('delete', $user);
 
-        $user->delete();
+        $user->delete(); // Soft delete
 
-        return redirect()->back()->with('success', 'Usuario eliminado exitosamente');
+        return redirect()->back()->with('success', 'Usuario eliminado exitosamente (puede ser restaurado)');
+    }
+
+    /**
+     * Restore a soft-deleted user.
+     */
+    public function restore(int $id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+
+        $this->authorize('delete', $user); // Reuse delete permission for restore
+
+        $user->restore();
+
+        return redirect()->back()->with('success', 'Usuario restaurado exitosamente');
+    }
+
+    /**
+     * Permanently delete a soft-deleted user.
+     */
+    public function forceDelete(int $id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+
+        $this->authorize('forceDelete', $user);
+
+        $user->forceDelete();
+
+        return redirect()->back()->with('success', 'Usuario eliminado permanentemente');
     }
 }

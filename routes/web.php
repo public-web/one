@@ -1,37 +1,33 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\CheckPasswordChanged;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('auth/Login');
+    return Inertia::render('Auth/Login');
 })->name('home');
 
-Route::get('dashboard', function () {
-    $user = auth()->user();
-    $canManageUsers = $user->hasRole('superadmin');
-
-    $roles = [];
-    $users = [];
-    if ($canManageUsers) {
-        $roles = \Spatie\Permission\Models\Role::all(['id', 'name']);
-        $users = \App\Models\User::with('roles')->get();
-    }
-
-    return Inertia::render('Dashboard', [
-        'canManageUsers' => $canManageUsers,
-        'availableRoles' => $roles,
-        'users' => $users
-    ]);
-})->middleware(['auth', 'verified', CheckPasswordChanged::class])->name('dashboard');
-
+// Protected routes - require authentication, verification, and password change
 Route::middleware(['auth', 'verified', CheckPasswordChanged::class])->group(function () {
-    Route::get('/users', [UserController::class, 'index'])->name('users.index');
-    Route::post('/users', [UserController::class, 'store'])->name('users.store');
-    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
-    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    // Dashboard
+    Route::get('dashboard', DashboardController::class)->name('dashboard');
+
+    // Users management
+    Route::prefix('users')->name('users.')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('index');
+        Route::post('/', [UserController::class, 'store'])->name('store');
+        Route::put('/{user}', [UserController::class, 'update'])->name('update');
+        Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
+        Route::post('/{id}/restore', [UserController::class, 'restore'])->name('restore');
+        Route::delete('/{id}/force', [UserController::class, 'forceDelete'])->name('force-delete');
+    });
+
+    // Future modules can be added here:
+    // Route::prefix('contracts')->name('contracts.')->group(function () { ... });
+    // Route::prefix('roles')->name('roles.')->group(function () { ... });
 });
 
 require __DIR__.'/settings.php';

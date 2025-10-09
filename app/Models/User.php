@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -12,7 +13,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, TwoFactorAuthenticatable, HasRoles;
+    use HasFactory, Notifiable, TwoFactorAuthenticatable, HasRoles, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -83,5 +84,100 @@ class User extends Authenticatable
     public function isActiveAndNotExpired(): bool
     {
         return $this->active && !$this->hasExpired();
+    }
+
+    /**
+     * Check if the user is a superadmin
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole('superadmin');
+    }
+
+    /**
+     * Check if the user is an admin (includes superadmin)
+     */
+    public function isAdmin(): bool
+    {
+        return $this->hasAnyRole(['superadmin', 'admin']);
+    }
+
+    /**
+     * Check if the user can manage users
+     */
+    public function canManageUsers(): bool
+    {
+        return $this->can('users.list') && $this->can('users.edit');
+    }
+
+    /**
+     * Check if the user has any of the given permissions
+     */
+    public function hasAnyPermission(array $permissions): bool
+    {
+        foreach ($permissions as $permission) {
+            if ($this->can($permission)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if the user has all of the given permissions
+     */
+    public function hasAllPermissions(array $permissions): bool
+    {
+        foreach ($permissions as $permission) {
+            if (!$this->can($permission)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Get the user's primary role name
+     */
+    public function getPrimaryRole(): ?string
+    {
+        return $this->roles->first()?->name;
+    }
+
+    /**
+     * Scope to filter only active users
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('active', true);
+    }
+
+    /**
+     * Scope to filter only non-expired users
+     */
+    public function scopeNotExpired($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereNull('expires_at')
+              ->orWhere('expires_at', '>', now());
+        });
+    }
+
+    /**
+     * Scope to filter active and non-expired users
+     */
+    public function scopeActiveAndNotExpired($query)
+    {
+        return $query->active()->notExpired();
+    }
+
+    /**
+     * Scope to filter users by role
+     */
+    public function scopeWithRole($query, string $role)
+    {
+        return $query->whereHas('roles', function ($q) use ($role) {
+            $q->where('name', $role);
+        });
     }
 }

@@ -56,6 +56,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Default User Password
+    |--------------------------------------------------------------------------
+    |
+    | This value is the default temporary password assigned to new users.
+    | Users will be required to change this password on their first login.
+    |
+    */
+
+    'default_password' => env('DEFAULT_PASSWORD', 'Temporal123!'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

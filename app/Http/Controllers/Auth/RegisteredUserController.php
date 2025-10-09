@@ -7,7 +7,6 @@ use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -18,7 +17,7 @@ class RegisteredUserController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('auth/Register');
+        return Inertia::render('Auth/Register');
     }
 
     /**
@@ -33,19 +32,22 @@ class RegisteredUserController extends Controller
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
         ]);
 
-        // Generate a generic password for new users
-        $genericPassword = 'Temporal123!';
+        // Generate a temporary password for new users
+        $temporaryPassword = config('app.default_password');
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($genericPassword),
+            'password' => $temporaryPassword, // Auto-hashed by 'hashed' cast
             'password_changed_at' => null, // Force password change on first login
         ]);
 
         event(new Registered($user));
 
+        // Send welcome email with temporary password
+        $user->notify(new \App\Notifications\NewUserCreated($temporaryPassword));
+
         // Don't auto-login the user, redirect to login with message
-        return redirect()->route('login')->with('status', 'Usuario registrado exitosamente. Use la contraseña temporal: ' . $genericPassword);
+        return redirect()->route('login')->with('status', 'Usuario registrado exitosamente. Revisa tu correo electrónico para obtener tu contraseña temporal.');
     }
 }

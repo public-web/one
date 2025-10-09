@@ -1,28 +1,66 @@
-/.phpunit.cache
-/bootstrap/ssr
+# Laravel & PHP
+/vendor
 /node_modules
-/public/build
 /public/hot
 /public/storage
 /storage/*.key
-/storage/pail
-/resources/js/actions
-/resources/js/routes
-/resources/js/wayfinder
-/vendor
-.DS_Store
 .env
 .env.backup
-.env.production
-.phpactor.json
+.env.*.php
+.env.php
 .phpunit.result.cache
+.php-cs-fixer.cache
 Homestead.json
 Homestead.yaml
+auth.json
+/.phpstorm.meta.php
+/.idea
+/.vscode
+/.DS_Store
+
+# NPM / Yarn / PNPM logs
 npm-debug.log
 yarn-error.log
-/auth.json
-/.fleet
-/.idea
-/.nova
-/.vscode
-/.zed
+pnpm-debug.log
+
+# Coverage / Testing
+coverage
+.phpunit.cache
+
+# Laravel Telescope & Debugbar
+/telescope
+/debugbar
+
+# Laravel Mix / Vite
+/public/build
+/.vite
+vite.config.ts.timestamp-*
+
+# Compiled assets
+/public/js
+/public/css
+
+# Database
+*.sqlite
+*.sqlite-journal
+/database/*.sqlite
+/database/*.sqlite-journal
+
+# Storage
+/storage/debugbar
+/storage/framework/cache/data
+/storage/framework/sessions
+/storage/framework/testing
+/storage/framework/views
+/storage/logs
+
+# Cache
+bootstrap/cache/*.php
+
+# IDE & OS files
+*.swp
+*.swo
+*~
+*.bak
+Thumbs.db
+Desktop.ini

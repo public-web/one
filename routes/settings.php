@@ -5,6 +5,7 @@ use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\TwoFactorAuthenticationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Laravel\Fortify\Features;
 
 Route::middleware('auth')->group(function () {
     Route::redirect('settings', '/settings/profile');
@@ -20,9 +21,13 @@ Route::middleware('auth')->group(function () {
         ->name('password.update');
 
     Route::get('settings/appearance', function () {
-        return Inertia::render('settings/Appearance');
+        return Inertia::render('Settings/Appearance');
     })->name('appearance');
 
-    Route::get('settings/two-factor', [TwoFactorAuthenticationController::class, 'show'])
+    $twoFactorRoute = Route::get('settings/two-factor', [TwoFactorAuthenticationController::class, 'show'])
         ->name('two-factor.show');
+
+    if (Features::optionEnabled(Features::twoFactorAuthentication(), 'confirmPassword')) {
+        $twoFactorRoute->middleware('password.confirm');
+    }
 });

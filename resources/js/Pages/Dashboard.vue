@@ -193,7 +193,7 @@ const cancelCreate = () => {
                                 </div>
                                 <div class="p-3 bg-blue-50 border border-blue-200 rounded-md">
                                     <p class="text-sm text-blue-800">
-                                        <strong>Nota:</strong> Se generará automáticamente la contraseña temporal: <code class="bg-blue-100 px-1 rounded">Temporal123!</code>
+                                        <strong>Nota:</strong> Se generará una contraseña temporal automáticamente y se enviará por correo electrónico al usuario.
                                     </p>
                                 </div>
                                 <div class="flex items-center space-x-2">
@@ -292,7 +292,7 @@ const cancelCreate = () => {
                                         </td>
                                     </tr>
                                     <tr v-if="users.length === 0">
-                                        <td colspan="7" class="text-center py-4 text-gray-500">
+                                        <td colspan="8" class="text-center py-4 text-gray-500">
                                             No hay usuarios registrados
                                         </td>
                                     </tr>

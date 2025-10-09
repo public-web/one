@@ -16,7 +16,7 @@ class PasswordChangeController extends Controller
      */
     public function show()
     {
-        return Inertia::render('auth/PasswordChange', [
+        return Inertia::render('Auth/PasswordChange', [
             'isFirstLogin' => true
         ]);
     }
