@@ -81,6 +81,9 @@
         ],
         "format:test": [
             "./vendor/bin/pint --test"
+        ],
+        "audit": [
+            "@composer audit"
         ]
     },
     "extra": {

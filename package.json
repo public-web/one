@@ -7,7 +7,9 @@
         "dev": "vite",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
-        "lint": "eslint . --fix"
+        "lint": "eslint . --fix",
+        "audit": "npm audit",
+        "audit:fix": "npm audit fix"
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",
