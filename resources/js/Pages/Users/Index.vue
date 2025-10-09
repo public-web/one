@@ -30,7 +30,7 @@ interface Props {
     availableRoles: Role[];
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
