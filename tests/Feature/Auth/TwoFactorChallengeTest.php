@@ -32,10 +32,12 @@ test('two factor challenge can be rendered', function () {
         'two_factor_confirmed_at' => now(),
     ])->save();
 
-    $this->post(route('login'), [
+    $response = $this->post(route('login'), [
         'email' => $user->email,
         'password' => 'password',
     ]);
+
+    $response->assertRedirect(route('two-factor.login'));
 
     $this->get(route('two-factor.login'))
         ->assertOk()

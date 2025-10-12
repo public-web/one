@@ -25,5 +25,15 @@ class DatabaseSeeder extends Seeder
 
         // Asignar rol superadmin al usuario de prueba
         $user->assignRole('superadmin');
+
+        // Crear usuario Juan García con rol superadmin
+        $juanGarcia = User::factory()->create([
+            'name' => 'Juan García',
+            'email' => 'juangarcia19@gmail.com',
+            'active' => true,
+        ]);
+
+        // Asignar rol superadmin
+        $juanGarcia->assignRole('superadmin');
     }
 }

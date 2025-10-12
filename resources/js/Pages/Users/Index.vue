@@ -7,30 +7,11 @@ import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
+import type { InertiaErrors, User, UserFormData, UsersPageProps, UserSubmitData } from '@/types/users';
 import { Head, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
-interface User {
-    id: number;
-    name: string;
-    email: string;
-    active: boolean;
-    expires_at?: string;
-    require_2fa: boolean;
-    roles: Array<{ name: string }>;
-}
-
-interface Role {
-    id: number;
-    name: string;
-}
-
-interface Props {
-    users: User[];
-    availableRoles: Role[];
-}
-
-defineProps<Props>();
+defineProps<UsersPageProps>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -47,7 +28,8 @@ const isCreateModalOpen = ref(false);
 const isEditModalOpen = ref(false);
 const editingUser = ref<User | null>(null);
 
-const newUser = ref({
+// Helper function to get default user form values
+const getDefaultUserForm = (): UserFormData => ({
     name: '',
     email: '',
     active: true,
@@ -56,80 +38,95 @@ const newUser = ref({
     role: 'user',
 });
 
-const editUser = ref({
-    name: '',
-    email: '',
-    active: true,
-    expires_at: '',
-    require_2fa: false,
-    role: 'user',
-});
+const newUser = ref<UserFormData>(getDefaultUserForm());
+const editUser = ref<UserFormData>(getDefaultUserForm());
 
-const createUser = () => {
-    router.post(
-        '/users',
-        {
-            name: newUser.value.name,
-            email: newUser.value.email,
-            active: newUser.value.active,
-            expires_at: newUser.value.expires_at || null,
-            require_2fa: newUser.value.require_2fa,
-            role: newUser.value.role,
-        },
-        {
-            preserveState: false,
-            onSuccess: () => {
-                cancelCreate();
-            },
-            onError: (errors: any) => {
-                console.error('Error creating user:', errors);
-            },
-        },
-    );
+// Helper function to reset form
+const resetUserForm = (formRef: typeof newUser | typeof editUser): void => {
+    Object.assign(formRef.value, getDefaultUserForm());
 };
 
-const updateUser = () => {
+// Helper function to get user data for submission
+const getUserFormData = (formData: UserFormData): UserSubmitData => ({
+    name: formData.name,
+    email: formData.email,
+    active: formData.active,
+    expires_at: formData.expires_at || null,
+    require_2fa: formData.require_2fa,
+    role: formData.role,
+});
+
+const createUser = (): void => {
+    router.post('/users', getUserFormData(newUser.value), {
+        preserveState: false,
+        onSuccess: () => {
+            cancelCreate();
+        },
+        onError: (errors: InertiaErrors) => {
+            console.error('Error creating user:', errors);
+        },
+    });
+};
+
+const updateUser = (): void => {
     if (!editingUser.value) {
         console.error('No user selected for editing');
         return;
     }
 
-    router.put(
-        `/users/${editingUser.value.id}`,
-        {
-            name: editUser.value.name,
-            email: editUser.value.email,
-            active: editUser.value.active,
-            expires_at: editUser.value.expires_at || null,
-            require_2fa: editUser.value.require_2fa,
-            role: editUser.value.role,
-        },
-        {
-            preserveState: false,
-            onSuccess: () => {
-                cancelEdit();
-            },
-            onError: (errors: any) => {
-                console.error('Error updating user:', errors);
-            },
-        },
-    );
-};
+    const url = `/users/${editingUser.value.id}`;
+    const data = {
+        ...getUserFormData(editUser.value),
+        _method: 'PUT'
+    };
 
-const deleteUser = (userId: number) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este usuario?')) return;
+    console.log('🔍 Updating user:', {
+        url,
+        userId: editingUser.value.id,
+        data
+    });
 
-    router.delete(`/users/${userId}`, {
+    router.post(url, data, {
+        preserveState: false,
         onSuccess: () => {
-            // Usuario eliminado correctamente
+            console.log('✅ User updated successfully');
+            cancelEdit();
         },
-        onError: (errors: any) => {
-            console.error('Error deleting user:', errors);
+        onError: (errors: InertiaErrors) => {
+            console.error('❌ Error updating user:', errors);
         },
     });
 };
 
-const openEditModal = (user: User) => {
+const deleteUser = (userId: number): void => {
+    if (!confirm('¿Estás seguro de que quieres eliminar este usuario?')) return;
+
+    router.post(`/users/${userId}`, { _method: 'DELETE' }, {
+        preserveState: false,
+        onSuccess: () => {
+            console.log('✅ User deleted successfully');
+        },
+        onError: (errors: InertiaErrors) => {
+            console.error('❌ Error deleting user:', errors);
+        },
+    });
+};
+
+const restoreUser = (userId: number): void => {
+    if (!confirm('¿Estás seguro de que quieres restaurar este usuario?')) return;
+
+    router.post(`/users/${userId}/restore`, {}, {
+        preserveState: false,
+        onSuccess: () => {
+            console.log('✅ User restored successfully');
+        },
+        onError: (errors: InertiaErrors) => {
+            console.error('❌ Error restoring user:', errors);
+        },
+    });
+};
+
+const openEditModal = (user: User): void => {
     editingUser.value = user;
     editUser.value = {
         name: user.name,
@@ -142,29 +139,15 @@ const openEditModal = (user: User) => {
     isEditModalOpen.value = true;
 };
 
-const cancelEdit = () => {
+const cancelEdit = (): void => {
     isEditModalOpen.value = false;
     editingUser.value = null;
-    editUser.value = {
-        name: '',
-        email: '',
-        active: true,
-        expires_at: '',
-        require_2fa: false,
-        role: 'user',
-    };
+    resetUserForm(editUser);
 };
 
-const cancelCreate = () => {
+const cancelCreate = (): void => {
     isCreateModalOpen.value = false;
-    newUser.value = {
-        name: '',
-        email: '',
-        active: true,
-        expires_at: '',
-        require_2fa: false,
-        role: 'user',
-    };
+    resetUserForm(newUser);
 };
 </script>
 
@@ -260,7 +243,13 @@ const cancelCreate = () => {
                                         <td class="py-2">{{ user.email }}</td>
                                         <td class="py-2">
                                             <span
-                                                v-if="user.expires_at && new Date(user.expires_at) < new Date()"
+                                                v-if="user.deleted_at"
+                                                class="rounded bg-gray-100 px-2 py-1 text-xs text-gray-800"
+                                            >
+                                                Deleted
+                                            </span>
+                                            <span
+                                                v-else-if="user.expires_at && new Date(user.expires_at) < new Date()"
                                                 class="rounded bg-red-100 px-2 py-1 text-xs text-red-800"
                                             >
                                                 Expired
@@ -295,14 +284,17 @@ const cancelCreate = () => {
                                         <td class="py-2">
                                             <span
                                                 v-for="role in user.roles"
-                                                :key="role.name"
+                                                :key="`${user.id}-${role.name}`"
                                                 class="mr-1 inline-block rounded bg-blue-100 px-2 py-1 text-xs text-blue-800"
                                             >
                                                 {{ role.name }}
                                             </span>
                                         </td>
                                         <td class="py-2">
-                                            <div class="flex space-x-2">
+                                            <div v-if="user.deleted_at" class="flex space-x-2">
+                                                <Button size="sm" variant="default" @click="restoreUser(user.id)"> Restore </Button>
+                                            </div>
+                                            <div v-else class="flex space-x-2">
                                                 <Button size="sm" variant="outline" @click="openEditModal(user)"> Edit </Button>
                                                 <Button size="sm" variant="destructive" @click="deleteUser(user.id)"> Delete </Button>
                                             </div>

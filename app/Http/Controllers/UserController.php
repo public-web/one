@@ -11,7 +11,8 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
-        $users = User::with('roles')->get();
+        // Include soft-deleted users so they can be restored
+        $users = User::withTrashed()->with('roles')->get();
         $roles = \Spatie\Permission\Models\Role::all(['id', 'name']);
 
         if (request()->wantsJson()) {
@@ -76,6 +77,12 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
+        \Log::info('UserController::update called', [
+            'user_id' => $user->id,
+            'request_method' => $request->method(),
+            'request_data' => $request->all(),
+        ]);
+
         $this->authorize('update', $user);
 
         $request->validate([

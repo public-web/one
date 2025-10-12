@@ -57,6 +57,13 @@ vite.config.ts.timestamp-*
 # Cache
 bootstrap/cache/*.php
 
+# SSR Build
+/bootstrap/ssr
+
+# Debug files
+/public/xdebug-info.php
+sistema-usuarios-diagrama.html
+
 # IDE & OS files
 *.swp
 *.swo

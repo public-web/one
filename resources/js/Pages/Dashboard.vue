@@ -1,36 +1,56 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
+import { index as usersIndex } from '@/routes/users';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { Head, router } from '@inertiajs/vue3';
+import { Activity, AlertCircle, Clock, Shield, TrendingUp, Users } from 'lucide-vue-next';
+import { computed } from 'vue';
 import PlaceholderPattern from '../components/PlaceholderPattern.vue';
-
-interface User {
-    id: number;
-    name: string;
-    email: string;
-    active: boolean;
-    expires_at?: string;
-    require_2fa: boolean;
-    roles: Array<{ name: string }>;
-}
 
 interface Role {
     id: number;
     name: string;
 }
 
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    active: boolean;
+    expires_at: string | null;
+    require_2fa: boolean;
+    deleted_at: string | null;
+    created_at: string;
+    roles: Role[];
+}
+
+interface Statistics {
+    total: number;
+    active: number;
+    expired: number;
+    with2FA: number;
+    inactive: number;
+    deleted: number;
+}
+
+interface RoleDistribution {
+    name: string;
+    count: number;
+}
+
 interface PageProps {
     canManageUsers: boolean;
     availableRoles: Role[];
-    users?: User[];
+    statistics: Statistics;
+    recentUsers: User[];
+    expiringUsers: User[];
+    roleDistribution: RoleDistribution[];
 }
+
+const props = defineProps<PageProps>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -39,132 +59,38 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const page = usePage<PageProps>();
-const canManageUsers = computed(() => page.props.canManageUsers);
-const availableRoles = computed(() => page.props.availableRoles || []);
-const users = computed(() => page.props.users || []);
-const isCreateModalOpen = ref(false);
-const isEditModalOpen = ref(false);
-const editingUser = ref<User | null>(null);
+// Computed properties
+const statistics = computed(() => props.statistics || {});
+const recentUsers = computed(() => props.recentUsers || []);
+const expiringUsers = computed(() => props.expiringUsers || []);
+const roleDistribution = computed(() => props.roleDistribution || []);
 
-const newUser = ref({
-    name: '',
-    email: '',
-    active: true,
-    expires_at: '',
-    require_2fa: false,
-    role: 'user',
-});
+// Calculate percentages for role distribution
+const totalUsersInRoles = computed(() =>
+    roleDistribution.value.reduce((sum, role) => sum + role.count, 0)
+);
 
-const editUser = ref({
-    name: '',
-    email: '',
-    active: true,
-    expires_at: '',
-    require_2fa: false,
-    role: 'user',
-});
-
-const createUser = () => {
-    router.post(
-        '/users',
-        {
-            name: newUser.value.name,
-            email: newUser.value.email,
-            active: newUser.value.active,
-            expires_at: newUser.value.expires_at || null,
-            require_2fa: newUser.value.require_2fa,
-            role: newUser.value.role,
-        },
-        {
-            preserveState: false,
-            onSuccess: () => {
-                cancelCreate();
-            },
-            onError: (errors: any) => {
-                console.error('Error creating user:', errors);
-            },
-        },
-    );
+const getRolePercentage = (count: number): number => {
+    if (totalUsersInRoles.value === 0) return 0;
+    return Math.round((count / totalUsersInRoles.value) * 100);
 };
 
-const updateUser = () => {
-    if (!editingUser.value) {
-        console.error('No user selected for editing');
-        return;
-    }
+// Colors for role chart
+const roleColors = ['#667eea', '#764ba2', '#f093fb', '#4facfe'];
 
-    router.put(
-        `/users/${editingUser.value.id}`,
-        {
-            name: editUser.value.name,
-            email: editUser.value.email,
-            active: editUser.value.active,
-            expires_at: editUser.value.expires_at || null,
-            require_2fa: editUser.value.require_2fa,
-            role: editUser.value.role,
-        },
-        {
-            preserveState: false,
-            onSuccess: () => {
-                cancelEdit();
-            },
-            onError: (errors: any) => {
-                console.error('Error updating user:', errors);
-            },
-        },
-    );
-};
-
-const deleteUser = (userId: number) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este usuario?')) return;
-
-    router.delete(`/users/${userId}`, {
-        onSuccess: () => {
-            // Usuario eliminado correctamente
-        },
-        onError: (errors: any) => {
-            console.error('Error deleting user:', errors);
-        },
+const formatDate = (dateString: string): string => {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
     });
 };
 
-const openEditModal = (user: User) => {
-    editingUser.value = user;
-    editUser.value = {
-        name: user.name,
-        email: user.email,
-        active: user.active,
-        expires_at: user.expires_at ? user.expires_at.split('T')[0] : '',
-        require_2fa: user.require_2fa || false,
-        role: user.roles.length > 0 ? user.roles[0].name : 'user',
-    };
-    isEditModalOpen.value = true;
-};
-
-const cancelEdit = () => {
-    isEditModalOpen.value = false;
-    editingUser.value = null;
-    editUser.value = {
-        name: '',
-        email: '',
-        active: true,
-        expires_at: '',
-        require_2fa: false,
-        role: 'user',
-    };
-};
-
-const cancelCreate = () => {
-    isCreateModalOpen.value = false;
-    newUser.value = {
-        name: '',
-        email: '',
-        active: true,
-        expires_at: '',
-        require_2fa: false,
-        role: 'user',
-    };
+const getDaysUntilExpiration = (expiresAt: string): number => {
+    const now = new Date();
+    const expiration = new Date(expiresAt);
+    const diffTime = expiration.getTime() - now.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 };
 </script>
 
@@ -173,217 +99,239 @@ const cancelCreate = () => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-            <!-- Gestión de Usuarios - Solo visible para superadmin -->
-            <div v-if="canManageUsers" class="space-y-4">
+            <!-- Dashboard para Superadmin -->
+            <div v-if="canManageUsers" class="space-y-6">
+                <!-- Header -->
                 <div class="flex items-center justify-between">
-                    <h2 class="text-2xl font-bold">Gestión de Usuarios</h2>
-
-                    <!-- Botón Crear Usuario -->
-                    <Dialog v-model:open="isCreateModalOpen">
-                        <DialogTrigger asChild>
-                            <Button>Crear Usuario</Button>
-                        </DialogTrigger>
-                        <DialogContent class="sm:max-w-md">
-                            <DialogHeader>
-                                <DialogTitle>Crear Nuevo Usuario</DialogTitle>
-                            </DialogHeader>
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="text-sm font-medium">Nombre</label>
-                                    <Input v-model="newUser.name" placeholder="Nombre del usuario" />
-                                </div>
-                                <div>
-                                    <label class="text-sm font-medium">Email</label>
-                                    <Input v-model="newUser.email" type="email" placeholder="email@ejemplo.com" />
-                                </div>
-                                <div class="rounded-md border border-blue-200 bg-blue-50 p-3">
-                                    <p class="text-sm text-blue-800">
-                                        <strong>Nota:</strong> Se generará una contraseña temporal automáticamente y se enviará por correo electrónico
-                                        al usuario.
-                                    </p>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <Checkbox v-model="newUser.active" id="newUserActive" />
-                                    <label for="newUserActive" class="text-sm font-medium">Usuario activo</label>
-                                </div>
-                                <div>
-                                    <label class="text-sm font-medium">Fecha de caducidad (opcional)</label>
-                                    <Input v-model="newUser.expires_at" type="date" placeholder="Fecha de caducidad" />
-                                    <p class="mt-1 text-xs text-gray-500">Dejar vacío para cuenta sin caducidad</p>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <Checkbox v-model="newUser.require_2fa" id="newUser2FA" />
-                                    <label for="newUser2FA" class="text-sm font-medium">Requerir autenticación 2FA</label>
-                                </div>
-                                <div>
-                                    <label class="text-sm font-medium">Rol</label>
-                                    <select
-                                        v-model="newUser.role"
-                                        class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                    >
-                                        <option v-for="role in availableRoles" :key="role.id" :value="role.name">
-                                            {{ role.name.charAt(0).toUpperCase() + role.name.slice(1) }}
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="flex justify-end space-x-2">
-                                    <Button variant="outline" @click="cancelCreate">Cancelar</Button>
-                                    <Button @click="createUser">Crear</Button>
-                                </div>
-                            </div>
-                        </DialogContent>
-                    </Dialog>
+                    <div>
+                        <h2 class="text-3xl font-bold tracking-tight">Dashboard</h2>
+                        <p class="text-muted-foreground">Panel de administración y estadísticas del sistema</p>
+                    </div>
+                    <Button @click="router.visit(usersIndex().url)">
+                        <Users class="mr-2 h-4 w-4" />
+                        Gestionar Usuarios
+                    </Button>
                 </div>
 
-                <!-- Tabla de Usuarios -->
-                <Card>
+                <!-- KPI Cards -->
+                <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <!-- Total Users -->
+                    <Card>
+                        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle class="text-sm font-medium">Total Usuarios</CardTitle>
+                            <Users class="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                            <div class="text-2xl font-bold">{{ statistics.total || 0 }}</div>
+                            <p class="text-xs text-muted-foreground">Registrados en el sistema</p>
+                        </CardContent>
+                    </Card>
+
+                    <!-- Active Users -->
+                    <Card>
+                        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle class="text-sm font-medium">Usuarios Activos</CardTitle>
+                            <Activity class="h-4 w-4 text-green-600" />
+                        </CardHeader>
+                        <CardContent>
+                            <div class="text-2xl font-bold text-green-600">{{ statistics.active || 0 }}</div>
+                            <p class="text-xs text-muted-foreground">
+                                {{ statistics.inactive || 0 }} inactivos
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    <!-- Expired Users -->
+                    <Card>
+                        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle class="text-sm font-medium">Cuentas Expiradas</CardTitle>
+                            <AlertCircle class="h-4 w-4 text-red-600" />
+                        </CardHeader>
+                        <CardContent>
+                            <div class="text-2xl font-bold text-red-600">{{ statistics.expired || 0 }}</div>
+                            <p class="text-xs text-muted-foreground">Requieren atención</p>
+                        </CardContent>
+                    </Card>
+
+                    <!-- 2FA Users -->
+                    <Card>
+                        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle class="text-sm font-medium">Con 2FA</CardTitle>
+                            <Shield class="h-4 w-4 text-blue-600" />
+                        </CardHeader>
+                        <CardContent>
+                            <div class="text-2xl font-bold text-blue-600">{{ statistics.with2FA || 0 }}</div>
+                            <p class="text-xs text-muted-foreground">Autenticación adicional</p>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                <!-- Main Content Grid -->
+                <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+                    <!-- Role Distribution Chart -->
+                    <Card class="col-span-4">
+                        <CardHeader>
+                            <CardTitle>Distribución por Roles</CardTitle>
+                            <CardDescription>Usuarios asignados a cada rol</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div v-if="roleDistribution.length > 0" class="space-y-4">
+                                <div v-for="(role, index) in roleDistribution" :key="role.name" class="space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <div
+                                                class="h-3 w-3 rounded-full"
+                                                :style="{ backgroundColor: roleColors[index % roleColors.length] }"
+                                            ></div>
+                                            <span class="text-sm font-medium">{{ role.name }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-sm text-muted-foreground">{{ role.count }} usuarios</span>
+                                            <span class="text-sm font-medium">{{ getRolePercentage(role.count) }}%</span>
+                                        </div>
+                                    </div>
+                                    <div class="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                                        <div
+                                            class="h-full rounded-full transition-all"
+                                            :style="{
+                                                width: `${getRolePercentage(role.count)}%`,
+                                                backgroundColor: roleColors[index % roleColors.length],
+                                            }"
+                                        ></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else class="flex h-32 items-center justify-center text-muted-foreground">
+                                No hay datos de distribución
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <!-- Recent Activity -->
+                    <Card class="col-span-3">
+                        <CardHeader>
+                            <CardTitle>Usuarios Recientes</CardTitle>
+                            <CardDescription>Últimos 5 usuarios creados</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div class="space-y-4">
+                                <div
+                                    v-for="user in recentUsers"
+                                    :key="user.id"
+                                    class="flex items-center justify-between border-b pb-3 last:border-0"
+                                >
+                                    <div class="space-y-1">
+                                        <p class="text-sm font-medium leading-none">{{ user.name }}</p>
+                                        <p class="text-xs text-muted-foreground">{{ user.email }}</p>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            v-if="user.roles.length > 0"
+                                            class="rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-800"
+                                        >
+                                            {{ user.roles[0].name }}
+                                        </span>
+                                        <TrendingUp class="h-4 w-4 text-muted-foreground" />
+                                    </div>
+                                </div>
+                                <div
+                                    v-if="recentUsers.length === 0"
+                                    class="flex h-32 items-center justify-center text-muted-foreground"
+                                >
+                                    No hay usuarios recientes
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                <!-- Expiring Users Alert -->
+                <Card v-if="expiringUsers.length > 0" class="border-yellow-200 bg-yellow-50">
                     <CardHeader>
-                        <CardTitle>Lista de Usuarios</CardTitle>
+                        <CardTitle class="flex items-center gap-2 text-yellow-800">
+                            <Clock class="h-5 w-5" />
+                            Cuentas Próximas a Expirar
+                        </CardTitle>
+                        <CardDescription class="text-yellow-700">
+                            {{ expiringUsers.length }} cuenta(s) expirará(n) en los próximos 7 días
+                        </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead>
-                                    <tr class="border-b">
-                                        <th class="py-2 text-left">ID</th>
-                                        <th class="py-2 text-left">Nombre</th>
-                                        <th class="py-2 text-left">Email</th>
-                                        <th class="py-2 text-left">Estado</th>
-                                        <th class="py-2 text-left">Expira</th>
-                                        <th class="py-2 text-left">2FA</th>
-                                        <th class="py-2 text-left">Roles</th>
-                                        <th class="py-2 text-left">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="user in users" :key="user.id" class="border-b">
-                                        <td class="py-2">{{ user.id }}</td>
-                                        <td class="py-2">{{ user.name }}</td>
-                                        <td class="py-2">{{ user.email }}</td>
-                                        <td class="py-2">
-                                            <span
-                                                v-if="user.expires_at && new Date(user.expires_at) < new Date()"
-                                                class="rounded bg-red-100 px-2 py-1 text-xs text-red-800"
-                                            >
-                                                Expirado
-                                            </span>
-                                            <span v-else-if="user.active" class="rounded bg-green-100 px-2 py-1 text-xs text-green-800">
-                                                Activo
-                                            </span>
-                                            <span v-else class="rounded bg-red-100 px-2 py-1 text-xs text-red-800"> Inactivo </span>
-                                        </td>
-                                        <td class="py-2">
-                                            <span
-                                                v-if="user.expires_at"
-                                                :class="
-                                                    new Date(user.expires_at) < new Date()
-                                                        ? 'bg-red-100 font-semibold text-red-800'
-                                                        : 'bg-yellow-100 text-yellow-800'
-                                                "
-                                                class="rounded px-2 py-1 text-xs"
-                                            >
-                                                {{ new Date(user.expires_at).toLocaleDateString() }}
-                                            </span>
-                                            <span v-else class="rounded bg-gray-100 px-2 py-1 text-xs text-gray-800"> Sin límite </span>
-                                        </td>
-                                        <td class="py-2">
-                                            <span
-                                                :class="user.require_2fa ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'"
-                                                class="rounded px-2 py-1 text-xs"
-                                            >
-                                                {{ user.require_2fa ? 'Requerido' : 'Opcional' }}
-                                            </span>
-                                        </td>
-                                        <td class="py-2">
-                                            <span
-                                                v-for="role in user.roles"
-                                                :key="role.name"
-                                                class="mr-1 inline-block rounded bg-blue-100 px-2 py-1 text-xs text-blue-800"
-                                            >
-                                                {{ role.name }}
-                                            </span>
-                                        </td>
-                                        <td class="py-2">
-                                            <div class="flex space-x-2">
-                                                <Button size="sm" variant="outline" @click="openEditModal(user)"> Editar </Button>
-                                                <Button size="sm" variant="destructive" @click="deleteUser(user.id)"> Eliminar </Button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr v-if="users.length === 0">
-                                        <td colspan="8" class="py-4 text-center text-gray-500">No hay usuarios registrados</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="space-y-3">
+                            <div
+                                v-for="user in expiringUsers"
+                                :key="user.id"
+                                class="flex items-center justify-between rounded-lg bg-white p-3"
+                            >
+                                <div class="space-y-1">
+                                    <p class="text-sm font-medium">{{ user.name }}</p>
+                                    <p class="text-xs text-muted-foreground">{{ user.email }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-semibold text-yellow-800">
+                                        {{ getDaysUntilExpiration(user.expires_at!) }} días
+                                    </p>
+                                    <p class="text-xs text-muted-foreground">
+                                        {{ formatDate(user.expires_at!) }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <!-- Quick Actions -->
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Acciones Rápidas</CardTitle>
+                        <CardDescription>Accesos directos a funciones principales</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                            <Button variant="outline" class="h-auto flex-col gap-2 py-4" @click="router.visit(usersIndex().url)">
+                                <Users class="h-6 w-6" />
+                                <span class="text-sm">Ver Todos los Usuarios</span>
+                            </Button>
+                            <Button variant="outline" class="h-auto flex-col gap-2 py-4" disabled>
+                                <Activity class="h-6 w-6" />
+                                <span class="text-sm">Logs del Sistema</span>
+                            </Button>
+                            <Button variant="outline" class="h-auto flex-col gap-2 py-4" disabled>
+                                <Shield class="h-6 w-6" />
+                                <span class="text-sm">Configuración 2FA</span>
+                            </Button>
+                            <Button variant="outline" class="h-auto flex-col gap-2 py-4" disabled>
+                                <AlertCircle class="h-6 w-6" />
+                                <span class="text-sm">Reportes</span>
+                            </Button>
                         </div>
                     </CardContent>
                 </Card>
             </div>
 
-            <!-- Modal de Edición -->
-            <Dialog v-model:open="isEditModalOpen">
-                <DialogContent class="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle>Editar Usuario</DialogTitle>
-                    </DialogHeader>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="text-sm font-medium">Nombre</label>
-                            <Input v-model="editUser.name" placeholder="Nombre del usuario" />
-                        </div>
-                        <div>
-                            <label class="text-sm font-medium">Email</label>
-                            <Input v-model="editUser.email" type="email" placeholder="email@ejemplo.com" />
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <Checkbox v-model="editUser.active" id="editUserActive" />
-                            <label for="editUserActive" class="text-sm font-medium">Usuario activo</label>
-                        </div>
-                        <div>
-                            <label class="text-sm font-medium">Fecha de caducidad (opcional)</label>
-                            <Input v-model="editUser.expires_at" type="date" placeholder="Fecha de caducidad" />
-                            <p class="mt-1 text-xs text-gray-500">Dejar vacío para cuenta sin caducidad</p>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <Checkbox v-model="editUser.require_2fa" id="editUser2FA" />
-                            <label for="editUser2FA" class="text-sm font-medium">Requerir autenticación 2FA</label>
-                        </div>
-                        <div>
-                            <label class="text-sm font-medium">Rol</label>
-                            <select
-                                v-model="editUser.role"
-                                class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            >
-                                <option v-for="role in availableRoles" :key="role.id" :value="role.name">
-                                    {{ role.name.charAt(0).toUpperCase() + role.name.slice(1) }}
-                                </option>
-                            </select>
-                        </div>
-                        <div class="flex justify-end space-x-2">
-                            <Button variant="outline" @click="cancelEdit">Cancelar</Button>
-                            <Button @click="updateUser">Actualizar</Button>
-                        </div>
-                    </div>
-                </DialogContent>
-            </Dialog>
+            <!-- Dashboard para usuarios regulares (placeholder) -->
+            <div v-if="!canManageUsers" class="space-y-4">
+                <div>
+                    <h2 class="text-3xl font-bold tracking-tight">Dashboard</h2>
+                    <p class="text-muted-foreground">Bienvenido a tu panel de usuario</p>
+                </div>
 
-            <!-- Contenido anterior del dashboard (solo si no puede gestionar usuarios) -->
-            <div v-if="!canManageUsers" class="grid auto-rows-min gap-4 md:grid-cols-3">
-                <div class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                <div class="grid auto-rows-min gap-4 md:grid-cols-3">
+                    <div class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                        <PlaceholderPattern />
+                    </div>
+                    <div class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                        <PlaceholderPattern />
+                    </div>
+                    <div class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                        <PlaceholderPattern />
+                    </div>
+                </div>
+                <div
+                    class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border"
+                >
                     <PlaceholderPattern />
                 </div>
-                <div class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                    <PlaceholderPattern />
-                </div>
-                <div class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                    <PlaceholderPattern />
-                </div>
-            </div>
-            <div
-                v-if="!canManageUsers"
-                class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border"
-            >
-                <PlaceholderPattern />
             </div>
         </div>
     </AppLayout>

@@ -19,8 +19,8 @@ Route::middleware(['auth', 'verified', CheckPasswordChanged::class])->group(func
     Route::prefix('users')->name('users.')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('index');
         Route::post('/', [UserController::class, 'store'])->name('store');
-        Route::put('/{user}', [UserController::class, 'update'])->name('update');
-        Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
+        Route::match(['put', 'post'], '/{user}', [UserController::class, 'update'])->name('update')->withTrashed();
+        Route::match(['delete', 'post'], '/{user}', [UserController::class, 'destroy'])->name('destroy')->withTrashed();
         Route::post('/{id}/restore', [UserController::class, 'restore'])->name('restore');
         Route::delete('/{id}/force', [UserController::class, 'forceDelete'])->name('force-delete');
     });
