@@ -10,9 +10,10 @@ import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import type { InertiaErrors, User, UserFormData, UsersPageProps, UserSubmitData } from '@/types/users';
 import { Head, router, useForm, usePage } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, watch, computed } from 'vue';
+import { useDebounceFn } from '@vueuse/core';
 
-defineProps<UsersPageProps>();
+const props = defineProps<UsersPageProps>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -176,6 +177,55 @@ const cancelActivityView = (): void => {
     isActivityModalOpen.value = false;
     viewingUser.value = null;
 };
+
+// Filters
+const filters = ref({
+    search: (props.filters?.search as string) || '',
+    role: (props.filters?.role as string) || '',
+    status: (props.filters?.status as string) || '',
+    expiring: (props.filters?.expiring as string) || '',
+    per_page: (props.filters?.per_page as number) || 15,
+});
+
+// Apply filters with URL update
+const applyFilters = (): void => {
+    router.get('/users', filters.value, {
+        preserveState: true,
+        preserveScroll: true,
+    });
+};
+
+// Debounced search
+const debouncedApplyFilters = useDebounceFn(() => {
+    applyFilters();
+}, 500);
+
+// Watch non-search filters (immediate apply)
+watch(() => [filters.value.role, filters.value.status, filters.value.expiring, filters.value.per_page], () => {
+    applyFilters();
+}, { deep: true });
+
+// Reset all filters
+const resetFilters = (): void => {
+    filters.value = {
+        search: '',
+        role: '',
+        status: '',
+        expiring: '',
+        per_page: 15,
+    };
+    applyFilters();
+};
+
+// Pagination helper
+const changePage = (url: string | null): void => {
+    if (url) {
+        router.visit(url, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    }
+};
 </script>
 
 <template>
@@ -253,6 +303,92 @@ const cancelActivityView = (): void => {
                     </Dialog>
                 </div>
 
+                <!-- Filters Section -->
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Filters</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
+                            <!-- Search -->
+                            <div>
+                                <label class="text-sm font-medium">Search</label>
+                                <Input
+                                    v-model="filters.search"
+                                    @input="debouncedApplyFilters"
+                                    placeholder="Name or email..."
+                                    class="mt-1"
+                                />
+                            </div>
+
+                            <!-- Role Filter -->
+                            <div>
+                                <label class="text-sm font-medium">Role</label>
+                                <select
+                                    v-model="filters.role"
+                                    class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                >
+                                    <option value="">All Roles</option>
+                                    <option v-for="role in availableRoles" :key="role.id" :value="role.name">
+                                        {{ role.name.charAt(0).toUpperCase() + role.name.slice(1) }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Status Filter -->
+                            <div>
+                                <label class="text-sm font-medium">Status</label>
+                                <select
+                                    v-model="filters.status"
+                                    class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                >
+                                    <option value="">All Status</option>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                    <option value="deleted">Deleted</option>
+                                </select>
+                            </div>
+
+                            <!-- Expiration Filter -->
+                            <div>
+                                <label class="text-sm font-medium">Expiration</label>
+                                <select
+                                    v-model="filters.expiring"
+                                    class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                >
+                                    <option value="">All</option>
+                                    <option value="soon">Expiring Soon (30 days)</option>
+                                    <option value="expired">Expired</option>
+                                </select>
+                            </div>
+
+                            <!-- Reset Button -->
+                            <div class="flex items-end">
+                                <Button @click="resetFilters" variant="outline" class="w-full">
+                                    Clear Filters
+                                </Button>
+                            </div>
+                        </div>
+
+                        <!-- Active Filters Display -->
+                        <div v-if="filters.search || filters.role || filters.status || filters.expiring" class="mt-4 flex flex-wrap gap-2">
+                            <span class="text-sm font-medium text-gray-600">Active filters:</span>
+                            <span v-if="filters.search" class="rounded bg-blue-100 px-2 py-1 text-xs text-blue-800">
+                                Search: {{ filters.search }}
+                            </span>
+                            <span v-if="filters.role" class="rounded bg-blue-100 px-2 py-1 text-xs text-blue-800">
+                                Role: {{ filters.role }}
+                            </span>
+                            <span v-if="filters.status" class="rounded bg-blue-100 px-2 py-1 text-xs text-blue-800">
+                                Status: {{ filters.status }}
+                            </span>
+                            <span v-if="filters.expiring" class="rounded bg-blue-100 px-2 py-1 text-xs text-blue-800">
+                                Expiration: {{ filters.expiring }}
+                            </span>
+                        </div>
+                    </CardContent>
+                </Card>
+
                 <!-- Users Table -->
                 <Card>
                     <CardHeader>
@@ -274,7 +410,7 @@ const cancelActivityView = (): void => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="user in users" :key="user.id" class="border-b">
+                                    <tr v-for="user in (users.data || users)" :key="user.id" class="border-b">
                                         <td class="py-2">{{ user.id }}</td>
                                         <td class="py-2">{{ user.name }}</td>
                                         <td class="py-2">{{ user.email }}</td>
@@ -340,11 +476,49 @@ const cancelActivityView = (): void => {
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr v-if="users.length === 0">
-                                        <td colspan="8" class="py-4 text-center text-gray-500">No users registered</td>
+                                    <tr v-if="users.data && users.data.length === 0">
+                                        <td colspan="8" class="py-4 text-center text-gray-500">No users found</td>
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div v-if="users.data && users.data.length > 0" class="mt-4 space-y-4">
+                            <!-- Results summary and per-page selector -->
+                            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <div class="text-sm text-gray-600">
+                                    Showing {{ users.from }} to {{ users.to }} of {{ users.total }} users
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <label class="text-sm font-medium text-gray-600">Per page:</label>
+                                    <select
+                                        v-model.number="filters.per_page"
+                                        class="rounded-md border border-gray-300 px-3 py-1 text-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    >
+                                        <option :value="10">10</option>
+                                        <option :value="15">15</option>
+                                        <option :value="25">25</option>
+                                        <option :value="50">50</option>
+                                        <option :value="100">100</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Pagination buttons -->
+                            <div class="flex flex-wrap items-center justify-center gap-2">
+                                <Button
+                                    v-for="(link, index) in users.links"
+                                    :key="index"
+                                    @click="changePage(link.url)"
+                                    :disabled="!link.url || link.active"
+                                    :variant="link.active ? 'default' : 'outline'"
+                                    size="sm"
+                                    v-html="link.label"
+                                    class="min-w-[40px]"
+                                />
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

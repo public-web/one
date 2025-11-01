@@ -7,24 +7,73 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', User::class);
 
-        // Include soft-deleted users so they can be restored
-        $users = User::withTrashed()->with('roles')->get();
+        // Build the query
+        $query = User::withTrashed()->with('roles');
+
+        // Search filter (name or email)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Role filter
+        if ($request->filled('role')) {
+            $query->whereHas('roles', function ($q) use ($request) {
+                $q->where('name', $request->role);
+            });
+        }
+
+        // Status filter
+        if ($request->filled('status')) {
+            switch ($request->status) {
+                case 'active':
+                    $query->where('active', true)->whereNull('deleted_at');
+                    break;
+                case 'inactive':
+                    $query->where('active', false)->whereNull('deleted_at');
+                    break;
+                case 'deleted':
+                    $query->onlyTrashed();
+                    break;
+            }
+        }
+
+        // Expiration filter
+        if ($request->filled('expiring')) {
+            if ($request->expiring === 'soon') {
+                // Users expiring in the next 30 days
+                $query->whereBetween('expires_at', [now(), now()->addDays(30)]);
+            } elseif ($request->expiring === 'expired') {
+                // Users already expired
+                $query->where('expires_at', '<', now());
+            }
+        }
+
+        // Pagination
+        $perPage = $request->input('per_page', 15);
+        $users = $query->paginate($perPage)->withQueryString();
+
         $roles = \Spatie\Permission\Models\Role::all(['id', 'name']);
 
-        if (request()->wantsJson()) {
+        if ($request->wantsJson()) {
             return response()->json([
                 'users' => $users,
                 'availableRoles' => $roles,
+                'filters' => $request->only(['search', 'role', 'status', 'expiring', 'per_page']),
             ]);
         }
 
         return inertia('Users/Index', [
             'users' => $users,
             'availableRoles' => $roles,
+            'filters' => $request->only(['search', 'role', 'status', 'expiring', 'per_page']),
         ]);
     }
 

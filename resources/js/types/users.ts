@@ -40,9 +40,49 @@ export interface UserSubmitData extends Record<string, any> {
     role: string;
 }
 
+/**
+ * Laravel pagination link
+ */
+export interface PaginationLink {
+    url: string | null;
+    label: string;
+    active: boolean;
+}
+
+/**
+ * Laravel paginated response
+ */
+export interface PaginatedResponse<T> {
+    data: T[];
+    current_page: number;
+    first_page_url: string;
+    from: number;
+    last_page: number;
+    last_page_url: string;
+    links: PaginationLink[];
+    next_page_url: string | null;
+    path: string;
+    per_page: number;
+    prev_page_url: string | null;
+    to: number;
+    total: number;
+}
+
+/**
+ * Filters for users list
+ */
+export interface UsersFilters {
+    search?: string;
+    role?: string;
+    status?: string;
+    expiring?: string;
+    per_page?: number;
+}
+
 export interface UsersPageProps {
-    users: User[];
+    users: User[] | PaginatedResponse<User>;
     availableRoles: Role[];
+    filters?: UsersFilters;
 }
 
 /**
