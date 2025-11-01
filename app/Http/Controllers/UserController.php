@@ -126,7 +126,7 @@ class UserController extends Controller
             ])->save();
         }
 
-        return redirect()->back()->with('success', 'Usuario creado exitosamente');
+        return redirect()->route('users.index')->with('success', 'Usuario creado exitosamente');
     }
 
     public function update(Request $request, User $user)

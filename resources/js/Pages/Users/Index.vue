@@ -71,12 +71,18 @@ const createUser = (): void => {
     formErrors.value = {};
 
     router.post('/users', formData, {
-        preserveState: true,
-        preserveScroll: true,
+        preserveState: false,
+        preserveScroll: false,
         onSuccess: () => {
             console.log('✅ User created successfully');
             formErrors.value = {};
-            cancelCreate();
+            isCreateModalOpen.value = false;
+            resetUserForm(newUser);
+            // Force reload to get fresh data
+            router.visit('/users', {
+                preserveState: false,
+                preserveScroll: false,
+            });
         },
         onError: (errors: InertiaErrors) => {
             console.error('❌ Error creating user:', errors);
