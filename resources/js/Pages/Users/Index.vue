@@ -509,90 +509,167 @@ const downloadTemplate = (): void => {
                     <CardHeader>
                         <CardTitle>Users List</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent class="p-0">
                         <div class="overflow-x-auto">
-                            <table class="w-full">
+                            <table class="w-full border-collapse">
                                 <thead>
-                                    <tr class="border-b">
-                                        <th class="py-2 text-left">ID</th>
-                                        <th class="py-2 text-left">Name</th>
-                                        <th class="py-2 text-left">Email</th>
-                                        <th class="py-2 text-left">Status</th>
-                                        <th class="py-2 text-left">Expires</th>
-                                        <th class="py-2 text-left">2FA</th>
-                                        <th class="py-2 text-left">Roles</th>
-                                        <th class="py-2 text-left">Actions</th>
+                                    <tr class="border-b bg-gray-50">
+                                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">User</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Email</th>
+                                        <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">Status</th>
+                                        <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">Role</th>
+                                        <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">2FA</th>
+                                        <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">Expires</th>
+                                        <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-600">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr v-for="user in (users.data || users)" :key="user.id" class="border-b">
-                                        <td class="py-2">{{ user.id }}</td>
-                                        <td class="py-2">{{ user.name }}</td>
-                                        <td class="py-2">{{ user.email }}</td>
-                                        <td class="py-2">
+                                <tbody class="divide-y divide-gray-200 bg-white">
+                                    <tr v-for="user in (users.data || users)" :key="user.id" class="hover:bg-gray-50 transition-colors">
+                                        <!-- User Column (Name + ID) -->
+                                        <td class="px-4 py-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-sm font-semibold text-white">
+                                                    {{ user.name.charAt(0).toUpperCase() }}
+                                                </div>
+                                                <div>
+                                                    <div class="font-medium text-gray-900">{{ user.name }}</div>
+                                                    <div class="text-xs text-gray-500">ID: {{ user.id }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <!-- Email Column -->
+                                        <td class="px-4 py-4">
+                                            <div class="text-sm text-gray-900">{{ user.email }}</div>
+                                        </td>
+
+                                        <!-- Status Column -->
+                                        <td class="px-4 py-4 text-center">
                                             <span
                                                 v-if="user.deleted_at"
-                                                class="rounded bg-gray-100 px-2 py-1 text-xs text-gray-800"
+                                                class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-800"
                                             >
-                                                Deleted
+                                                🗑️ Deleted
                                             </span>
                                             <span
                                                 v-else-if="user.expires_at && new Date(user.expires_at) < new Date()"
-                                                class="rounded bg-red-100 px-2 py-1 text-xs text-red-800"
+                                                class="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800"
                                             >
-                                                Expired
+                                                ⚠️ Expired
                                             </span>
-                                            <span v-else-if="user.active" class="rounded bg-green-100 px-2 py-1 text-xs text-green-800">
-                                                Active
-                                            </span>
-                                            <span v-else class="rounded bg-red-100 px-2 py-1 text-xs text-red-800"> Inactive </span>
-                                        </td>
-                                        <td class="py-2">
                                             <span
-                                                v-if="user.expires_at"
-                                                :class="
-                                                    new Date(user.expires_at) < new Date()
-                                                        ? 'bg-red-100 font-semibold text-red-800'
-                                                        : 'bg-yellow-100 text-yellow-800'
-                                                "
-                                                class="rounded px-2 py-1 text-xs"
+                                                v-else-if="user.active"
+                                                class="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800"
                                             >
-                                                {{ new Date(user.expires_at).toLocaleDateString() }}
+                                                ✓ Active
                                             </span>
-                                            <span v-else class="rounded bg-gray-100 px-2 py-1 text-xs text-gray-800"> No limit </span>
-                                        </td>
-                                        <td class="py-2">
                                             <span
-                                                :class="user.require_2fa ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'"
-                                                class="rounded px-2 py-1 text-xs"
+                                                v-else
+                                                class="inline-flex items-center rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-800"
                                             >
-                                                {{ user.require_2fa ? 'Required' : 'Optional' }}
+                                                ⏸ Inactive
                                             </span>
                                         </td>
-                                        <td class="py-2">
+
+                                        <!-- Role Column -->
+                                        <td class="px-4 py-4 text-center">
                                             <span
                                                 v-for="role in user.roles"
                                                 :key="`${user.id}-${role.name}`"
-                                                class="mr-1 inline-block rounded bg-blue-100 px-2 py-1 text-xs text-blue-800"
+                                                :class="{
+                                                    'bg-purple-100 text-purple-800': role.name === 'superadmin',
+                                                    'bg-blue-100 text-blue-800': role.name === 'admin',
+                                                    'bg-gray-100 text-gray-800': role.name === 'user',
+                                                }"
+                                                class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium capitalize"
                                             >
                                                 {{ role.name }}
                                             </span>
                                         </td>
-                                        <td class="py-2">
-                                            <div v-if="user.deleted_at" class="flex space-x-2">
-                                                <Button size="sm" variant="default" @click="restoreUser(user.id)"> Restore </Button>
-                                            </div>
-                                            <div v-else class="flex flex-wrap gap-2">
-                                                <Button size="sm" variant="ghost" @click="openActivityModal(user)" title="View Activity Log">
-                                                    📋 Activity
+
+                                        <!-- 2FA Column -->
+                                        <td class="px-4 py-4 text-center">
+                                            <span
+                                                v-if="user.require_2fa"
+                                                class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800"
+                                            >
+                                                🔒 Required
+                                            </span>
+                                            <span
+                                                v-else
+                                                class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600"
+                                            >
+                                                Optional
+                                            </span>
+                                        </td>
+
+                                        <!-- Expires Column -->
+                                        <td class="px-4 py-4 text-center">
+                                            <span
+                                                v-if="user.expires_at"
+                                                :class="
+                                                    new Date(user.expires_at) < new Date()
+                                                        ? 'bg-red-100 text-red-800'
+                                                        : 'bg-yellow-100 text-yellow-800'
+                                                "
+                                                class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
+                                            >
+                                                {{ new Date(user.expires_at).toLocaleDateString() }}
+                                            </span>
+                                            <span
+                                                v-else
+                                                class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600"
+                                            >
+                                                No limit
+                                            </span>
+                                        </td>
+
+                                        <!-- Actions Column -->
+                                        <td class="px-4 py-4">
+                                            <div v-if="user.deleted_at" class="flex justify-end">
+                                                <Button size="sm" variant="default" @click="restoreUser(user.id)" class="whitespace-nowrap">
+                                                    Restore
                                                 </Button>
-                                                <Button size="sm" variant="outline" @click="openEditModal(user)"> Edit </Button>
-                                                <Button size="sm" variant="destructive" @click="deleteUser(user.id)"> Delete </Button>
+                                            </div>
+                                            <div v-else class="flex justify-end gap-1">
+                                                <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    @click="openActivityModal(user)"
+                                                    title="View Activity Log"
+                                                    class="h-8 w-8 p-0"
+                                                >
+                                                    📋
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    @click="openEditModal(user)"
+                                                    title="Edit User"
+                                                    class="h-8 w-8 p-0"
+                                                >
+                                                    ✏️
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    @click="deleteUser(user.id)"
+                                                    title="Delete User"
+                                                    class="h-8 w-8 p-0 text-red-600 hover:bg-red-50 hover:text-red-700"
+                                                >
+                                                    🗑️
+                                                </Button>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr v-if="users.data && users.data.length === 0">
-                                        <td colspan="8" class="py-4 text-center text-gray-500">No users found</td>
+                                        <td colspan="7" class="px-4 py-8 text-center text-gray-500">
+                                            <div class="flex flex-col items-center gap-2">
+                                                <span class="text-4xl">👥</span>
+                                                <p class="text-sm font-medium">No users found</p>
+                                                <p class="text-xs text-gray-400">Try adjusting your filters</p>
+                                            </div>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
