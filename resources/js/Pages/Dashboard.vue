@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
-import { index as usersIndex } from '@/routes/users';
+import * as usersRoutes from '@/routes/users';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { Activity, AlertCircle, Clock, Shield, TrendingUp, Users } from 'lucide-vue-next';
@@ -107,7 +107,7 @@ const getDaysUntilExpiration = (expiresAt: string): number => {
                         <h2 class="text-3xl font-bold tracking-tight">Dashboard</h2>
                         <p class="text-muted-foreground">Panel de administración y estadísticas del sistema</p>
                     </div>
-                    <Button @click="router.visit(usersIndex().url)">
+                    <Button @click="router.visit(usersRoutes.index().url)">
                         <Users class="mr-2 h-4 w-4" />
                         Gestionar Usuarios
                     </Button>
@@ -288,11 +288,11 @@ const getDaysUntilExpiration = (expiresAt: string): number => {
                     </CardHeader>
                     <CardContent>
                         <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                            <Button variant="outline" class="h-auto flex-col gap-2 py-4" @click="router.visit(usersIndex().url)">
+                            <Button variant="outline" class="h-auto flex-col gap-2 py-4" @click="router.visit(usersRoutes.index().url)">
                                 <Users class="h-6 w-6" />
                                 <span class="text-sm">Ver Todos los Usuarios</span>
                             </Button>
-                            <Button variant="outline" class="h-auto flex-col gap-2 py-4" disabled>
+                            <Button variant="outline" class="h-auto flex-col gap-2 py-4" @click="router.visit('/activity-logs')">
                                 <Activity class="h-6 w-6" />
                                 <span class="text-sm">Logs del Sistema</span>
                             </Button>

@@ -30,6 +30,11 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        \Log::info('UserController::store called', [
+            'request_method' => $request->method(),
+            'request_data' => $request->all(),
+        ]);
+
         $this->authorize('create', User::class);
 
         $request->validate([
@@ -165,5 +170,38 @@ class UserController extends Controller
         $user->forceDelete();
 
         return redirect()->back()->with('success', 'Usuario eliminado permanentemente');
+    }
+
+    /**
+     * Get activity logs for a specific user.
+     */
+    public function activityLogs(int $id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+
+        $this->authorize('view', $user);
+
+        $activities = \Spatie\Activitylog\Models\Activity::where('subject_type', User::class)
+            ->where('subject_id', $id)
+            ->with('causer')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($activity) {
+                return [
+                    'id' => $activity->id,
+                    'description' => $activity->description,
+                    'event' => $activity->event,
+                    'properties' => $activity->properties,
+                    'changes' => $activity->changes(),
+                    'causer' => $activity->causer ? [
+                        'id' => $activity->causer->id,
+                        'name' => $activity->causer->name,
+                    ] : null,
+                    'created_at' => $activity->created_at->format('Y-m-d H:i:s'),
+                    'created_at_human' => $activity->created_at->diffForHumans(),
+                ];
+            });
+
+        return response()->json($activities);
     }
 }

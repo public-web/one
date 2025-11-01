@@ -4,11 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import ActivityLog from '@/components/ActivityLog.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import type { InertiaErrors, User, UserFormData, UsersPageProps, UserSubmitData } from '@/types/users';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, useForm, usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 defineProps<UsersPageProps>();
@@ -26,7 +27,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const isCreateModalOpen = ref(false);
 const isEditModalOpen = ref(false);
+const isActivityModalOpen = ref(false);
 const editingUser = ref<User | null>(null);
+const viewingUser = ref<User | null>(null);
+const formErrors = ref<Record<string, string>>({});
 
 // Helper function to get default user form values
 const getDefaultUserForm = (): UserFormData => ({
@@ -57,13 +61,25 @@ const getUserFormData = (formData: UserFormData): UserSubmitData => ({
 });
 
 const createUser = (): void => {
-    router.post('/users', getUserFormData(newUser.value), {
-        preserveState: false,
+    const formData = getUserFormData(newUser.value);
+    console.log('🔍 Creating user with data:', {
+        formData,
+        newUserValue: newUser.value,
+    });
+
+    formErrors.value = {};
+
+    router.post('/users', formData, {
+        preserveState: true,
+        preserveScroll: true,
         onSuccess: () => {
+            console.log('✅ User created successfully');
+            formErrors.value = {};
             cancelCreate();
         },
         onError: (errors: InertiaErrors) => {
-            console.error('Error creating user:', errors);
+            console.error('❌ Error creating user:', errors);
+            formErrors.value = errors as Record<string, string>;
         },
     });
 };
@@ -148,6 +164,17 @@ const cancelEdit = (): void => {
 const cancelCreate = (): void => {
     isCreateModalOpen.value = false;
     resetUserForm(newUser);
+    formErrors.value = {};
+};
+
+const openActivityModal = (user: User): void => {
+    viewingUser.value = user;
+    isActivityModalOpen.value = true;
+};
+
+const cancelActivityView = (): void => {
+    isActivityModalOpen.value = false;
+    viewingUser.value = null;
 };
 </script>
 
@@ -170,13 +197,23 @@ const cancelCreate = (): void => {
                                 <DialogTitle>Create New User</DialogTitle>
                             </DialogHeader>
                             <div class="space-y-4">
+                                <!-- Show general errors -->
+                                <div v-if="Object.keys(formErrors).length > 0" class="rounded-md border border-red-200 bg-red-50 p-3">
+                                    <p class="text-sm font-semibold text-red-800">Please fix the following errors:</p>
+                                    <ul class="mt-2 list-disc list-inside text-sm text-red-700">
+                                        <li v-for="(error, field) in formErrors" :key="field">{{ error }}</li>
+                                    </ul>
+                                </div>
+
                                 <div>
                                     <label class="text-sm font-medium">Name</label>
-                                    <Input v-model="newUser.name" placeholder="User name" />
+                                    <Input v-model="newUser.name" placeholder="User name" :class="{ 'border-red-500': formErrors.name }" />
+                                    <p v-if="formErrors.name" class="mt-1 text-xs text-red-600">{{ formErrors.name }}</p>
                                 </div>
                                 <div>
                                     <label class="text-sm font-medium">Email</label>
-                                    <Input v-model="newUser.email" type="email" placeholder="email@example.com" />
+                                    <Input v-model="newUser.email" type="email" placeholder="email@example.com" :class="{ 'border-red-500': formErrors.email }" />
+                                    <p v-if="formErrors.email" class="mt-1 text-xs text-red-600">{{ formErrors.email }}</p>
                                 </div>
                                 <div class="rounded-md border border-blue-200 bg-blue-50 p-3">
                                     <p class="text-sm text-blue-800">
@@ -184,7 +221,7 @@ const cancelCreate = (): void => {
                                     </p>
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                    <Checkbox v-model="newUser.active" id="newUserActive" />
+                                    <Checkbox :checked="newUser.active" @update:checked="(value: boolean) => newUser.active = value" id="newUserActive" />
                                     <label for="newUserActive" class="text-sm font-medium">Active user</label>
                                 </div>
                                 <div>
@@ -193,7 +230,7 @@ const cancelCreate = (): void => {
                                     <p class="mt-1 text-xs text-gray-500">Leave empty for no expiration</p>
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                    <Checkbox v-model="newUser.require_2fa" id="newUser2FA" />
+                                    <Checkbox :checked="newUser.require_2fa" @update:checked="(value: boolean) => newUser.require_2fa = value" id="newUser2FA" />
                                     <label for="newUser2FA" class="text-sm font-medium">Require 2FA authentication</label>
                                 </div>
                                 <div>
@@ -294,7 +331,10 @@ const cancelCreate = (): void => {
                                             <div v-if="user.deleted_at" class="flex space-x-2">
                                                 <Button size="sm" variant="default" @click="restoreUser(user.id)"> Restore </Button>
                                             </div>
-                                            <div v-else class="flex space-x-2">
+                                            <div v-else class="flex flex-wrap gap-2">
+                                                <Button size="sm" variant="ghost" @click="openActivityModal(user)" title="View Activity Log">
+                                                    📋 Activity
+                                                </Button>
                                                 <Button size="sm" variant="outline" @click="openEditModal(user)"> Edit </Button>
                                                 <Button size="sm" variant="destructive" @click="deleteUser(user.id)"> Delete </Button>
                                             </div>
@@ -326,7 +366,7 @@ const cancelCreate = (): void => {
                             <Input v-model="editUser.email" type="email" placeholder="email@example.com" />
                         </div>
                         <div class="flex items-center space-x-2">
-                            <Checkbox v-model="editUser.active" id="editUserActive" />
+                            <Checkbox :checked="editUser.active" @update:checked="(value: boolean) => editUser.active = value" id="editUserActive" />
                             <label for="editUserActive" class="text-sm font-medium">Active user</label>
                         </div>
                         <div>
@@ -335,7 +375,7 @@ const cancelCreate = (): void => {
                             <p class="mt-1 text-xs text-gray-500">Leave empty for no expiration</p>
                         </div>
                         <div class="flex items-center space-x-2">
-                            <Checkbox v-model="editUser.require_2fa" id="editUser2FA" />
+                            <Checkbox :checked="editUser.require_2fa" @update:checked="(value: boolean) => editUser.require_2fa = value" id="editUser2FA" />
                             <label for="editUser2FA" class="text-sm font-medium">Require 2FA authentication</label>
                         </div>
                         <div>
@@ -353,6 +393,23 @@ const cancelCreate = (): void => {
                             <Button variant="outline" @click="cancelEdit">Cancel</Button>
                             <Button @click="updateUser">Update</Button>
                         </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            <!-- Activity Log Modal -->
+            <Dialog v-model:open="isActivityModalOpen">
+                <DialogContent class="sm:max-w-4xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>
+                            Activity Log - {{ viewingUser?.name }}
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div v-if="viewingUser">
+                        <ActivityLog :user-id="viewingUser.id" />
+                    </div>
+                    <div class="flex justify-end mt-4">
+                        <Button variant="outline" @click="cancelActivityView">Close</Button>
                     </div>
                 </DialogContent>
             </Dialog>

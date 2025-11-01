@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\CheckPasswordChanged;
@@ -15,6 +16,9 @@ Route::middleware(['auth', 'verified', CheckPasswordChanged::class])->group(func
     // Dashboard
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
+    // Activity Logs (System-wide)
+    Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+
     // Users management
     Route::prefix('users')->name('users.')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('index');
@@ -23,6 +27,7 @@ Route::middleware(['auth', 'verified', CheckPasswordChanged::class])->group(func
         Route::match(['delete', 'post'], '/{user}', [UserController::class, 'destroy'])->name('destroy')->withTrashed();
         Route::post('/{id}/restore', [UserController::class, 'restore'])->name('restore');
         Route::delete('/{id}/force', [UserController::class, 'forceDelete'])->name('force-delete');
+        Route::get('/{id}/activity-logs', [UserController::class, 'activityLogs'])->name('activity-logs');
     });
 
     // Future modules can be added here:
