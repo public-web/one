@@ -253,4 +253,91 @@ class UserController extends Controller
 
         return response()->json($activities);
     }
+
+    /**
+     * Export users to Excel/CSV
+     */
+    public function export(Request $request)
+    {
+        $this->authorize('viewAny', User::class);
+
+        $format = $request->input('format', 'xlsx');
+        $filters = $request->only(['search', 'role', 'status', 'expiring']);
+
+        $filename = 'users_' . now()->format('Y-m-d_His') . '.' . $format;
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\UsersExport($filters),
+            $filename
+        );
+    }
+
+    /**
+     * Download import template
+     */
+    public function downloadTemplate()
+    {
+        $this->authorize('create', User::class);
+
+        $headers = ['name', 'email', 'role', 'active', 'require_2fa', 'expires_at'];
+        $sample = [
+            ['John Doe', 'john@example.com', 'user', 'true', 'false', '2026-12-31'],
+            ['Jane Smith', 'jane@example.com', 'admin', 'true', 'true', ''],
+        ];
+
+        $export = new class($headers, $sample) implements \Maatwebsite\Excel\Concerns\FromArray {
+            public function __construct(private $headers, private $sample) {}
+
+            public function array(): array {
+                return array_merge([$this->headers], $this->sample);
+            }
+        };
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            $export,
+            'users_import_template.xlsx'
+        );
+    }
+
+    /**
+     * Import users from Excel/CSV
+     */
+    public function import(Request $request)
+    {
+        $this->authorize('create', User::class);
+
+        $request->validate([
+            'file' => 'required|mimes:csv,xlsx,xls|max:10240', // Max 10MB
+        ]);
+
+        $import = new \App\Imports\UsersImport();
+
+        try {
+            \Maatwebsite\Excel\Facades\Excel::import($import, $request->file('file'));
+
+            $successCount = $import->getSuccessCount();
+            $failures = $import->getFailures();
+            $errors = $import->getErrors();
+
+            $message = "Importación completada: {$successCount} usuario(s) creado(s) exitosamente.";
+
+            if (count($failures) > 0 || count($errors) > 0) {
+                $errorCount = count($failures) + count($errors);
+                $message .= " {$errorCount} error(es) encontrado(s).";
+            }
+
+            return redirect()->back()->with('success', $message)->with('import_details', [
+                'success_count' => $successCount,
+                'error_count' => count($failures) + count($errors),
+                'failures' => $failures,
+                'errors' => $errors,
+            ]);
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+
+            return redirect()->back()->with('error', 'Error de validación en el archivo importado')->with('import_failures', $failures);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error al importar: ' . $e->getMessage());
+        }
+    }
 }

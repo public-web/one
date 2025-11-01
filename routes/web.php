@@ -28,6 +28,11 @@ Route::middleware(['auth', 'verified', CheckPasswordChanged::class])->group(func
         Route::post('/{id}/restore', [UserController::class, 'restore'])->name('restore');
         Route::delete('/{id}/force', [UserController::class, 'forceDelete'])->name('force-delete');
         Route::get('/{id}/activity-logs', [UserController::class, 'activityLogs'])->name('activity-logs');
+
+        // Import/Export
+        Route::get('/export', [UserController::class, 'export'])->name('export');
+        Route::get('/import/template', [UserController::class, 'downloadTemplate'])->name('import.template');
+        Route::post('/import', [UserController::class, 'import'])->name('import');
     });
 
     // Future modules can be added here:

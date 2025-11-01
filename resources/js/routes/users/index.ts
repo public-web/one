@@ -613,6 +613,143 @@ activityLogsForm.head = (args: { id: string | number } | [id: string | number ] 
 
 activityLogs.form = activityLogsForm
 
+/**
+* @see \App\Http\Controllers\UserController::exportMethod
+* @see app/Http/Controllers/UserController.php:260
+* @route '/users/export'
+*/
+export const exportMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: exportMethod.url(options),
+    method: 'get',
+})
+
+exportMethod.definition = {
+    methods: ["get","head"],
+    url: '/users/export',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\UserController::exportMethod
+* @see app/Http/Controllers/UserController.php:260
+* @route '/users/export'
+*/
+exportMethod.url = (options?: RouteQueryOptions) => {
+    return exportMethod.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\UserController::exportMethod
+* @see app/Http/Controllers/UserController.php:260
+* @route '/users/export'
+*/
+exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: exportMethod.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::exportMethod
+* @see app/Http/Controllers/UserController.php:260
+* @route '/users/export'
+*/
+exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: exportMethod.url(options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::exportMethod
+* @see app/Http/Controllers/UserController.php:260
+* @route '/users/export'
+*/
+const exportMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportMethod.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::exportMethod
+* @see app/Http/Controllers/UserController.php:260
+* @route '/users/export'
+*/
+exportMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportMethod.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::exportMethod
+* @see app/Http/Controllers/UserController.php:260
+* @route '/users/export'
+*/
+exportMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportMethod.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+exportMethod.form = exportMethodForm
+
+/**
+* @see \App\Http\Controllers\UserController::importMethod
+* @see app/Http/Controllers/UserController.php:305
+* @route '/users/import'
+*/
+export const importMethod = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: importMethod.url(options),
+    method: 'post',
+})
+
+importMethod.definition = {
+    methods: ["post"],
+    url: '/users/import',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\UserController::importMethod
+* @see app/Http/Controllers/UserController.php:305
+* @route '/users/import'
+*/
+importMethod.url = (options?: RouteQueryOptions) => {
+    return importMethod.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\UserController::importMethod
+* @see app/Http/Controllers/UserController.php:305
+* @route '/users/import'
+*/
+importMethod.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: importMethod.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::importMethod
+* @see app/Http/Controllers/UserController.php:305
+* @route '/users/import'
+*/
+const importMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: importMethod.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::importMethod
+* @see app/Http/Controllers/UserController.php:305
+* @route '/users/import'
+*/
+importMethodForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: importMethod.url(options),
+    method: 'post',
+})
+
+importMethod.form = importMethodForm
+
 const users = {
     index: Object.assign(index, index),
     store: Object.assign(store, store),
@@ -621,6 +758,8 @@ const users = {
     restore: Object.assign(restore, restore),
     forceDelete: Object.assign(forceDelete, forceDelete),
     activityLogs: Object.assign(activityLogs, activityLogs),
+    export: Object.assign(exportMethod, exportMethod),
+    import: Object.assign(importMethod, importMethod),
 }
 
 export default users

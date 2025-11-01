@@ -32,6 +32,8 @@ const isActivityModalOpen = ref(false);
 const editingUser = ref<User | null>(null);
 const viewingUser = ref<User | null>(null);
 const formErrors = ref<Record<string, string>>({});
+const isImportModalOpen = ref(false);
+const selectedFile = ref<File | null>(null);
 
 // Helper function to get default user form values
 const getDefaultUserForm = (): UserFormData => ({
@@ -232,6 +234,44 @@ const changePage = (url: string | null): void => {
         });
     }
 };
+
+// Export functions
+const exportUsers = (format: 'csv' | 'xlsx'): void => {
+    const params = new URLSearchParams({
+        format,
+        ...filters.value as any,
+    });
+
+    window.location.href = `/users/export?${params.toString()}`;
+};
+
+// Import functions
+const handleFileSelect = (event: Event): void => {
+    const target = event.target as HTMLInputElement;
+    selectedFile.value = target.files?.[0] || null;
+};
+
+const submitImport = (): void => {
+    if (!selectedFile.value) return;
+
+    const formData = new FormData();
+    formData.append('file', selectedFile.value);
+
+    router.post('/users/import', formData, {
+        preserveState: false,
+        onSuccess: () => {
+            isImportModalOpen.value = false;
+            selectedFile.value = null;
+        },
+        onError: (errors) => {
+            console.error('Import errors:', errors);
+        },
+    });
+};
+
+const downloadTemplate = (): void => {
+    window.location.href = '/users/import/template';
+};
 </script>
 
 <template>
@@ -240,15 +280,84 @@ const changePage = (url: string | null): void => {
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
             <div class="space-y-4">
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <h2 class="text-2xl font-bold">User Management</h2>
 
-                    <!-- Create User Button -->
-                    <Dialog v-model:open="isCreateModalOpen">
-                        <DialogTrigger asChild>
-                            <Button>Create User</Button>
-                        </DialogTrigger>
-                        <DialogContent class="sm:max-w-md">
+                    <div class="flex flex-wrap gap-2">
+                        <!-- Export Buttons -->
+                        <Button @click="exportUsers('xlsx')" variant="outline" size="sm">
+                            📊 Export Excel
+                        </Button>
+                        <Button @click="exportUsers('csv')" variant="outline" size="sm">
+                            📄 Export CSV
+                        </Button>
+
+                        <!-- Import Button -->
+                        <Dialog v-model:open="isImportModalOpen">
+                            <DialogTrigger asChild>
+                                <Button variant="outline" size="sm">
+                                    📥 Import Users
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent class="sm:max-w-lg">
+                                <DialogHeader>
+                                    <DialogTitle>Import Users from CSV/Excel</DialogTitle>
+                                </DialogHeader>
+                                <div class="space-y-4">
+                                    <!-- Download Template -->
+                                    <div class="rounded-md border border-blue-200 bg-blue-50 p-4">
+                                        <p class="text-sm text-blue-800">
+                                            <strong>First time importing?</strong> Download our template to see the required format.
+                                        </p>
+                                        <Button
+                                            variant="link"
+                                            @click="downloadTemplate"
+                                            class="mt-2 text-blue-600"
+                                        >
+                                            📥 Download Template
+                                        </Button>
+                                    </div>
+
+                                    <!-- File Upload -->
+                                    <div>
+                                        <label class="text-sm font-medium">Select File</label>
+                                        <input
+                                            type="file"
+                                            @change="handleFileSelect"
+                                            accept=".csv,.xlsx,.xls"
+                                            class="mt-1 w-full rounded-md border border-gray-300 p-2 text-sm"
+                                        />
+                                        <p class="mt-1 text-xs text-gray-500">
+                                            Accepted formats: CSV, XLSX, XLS (Max 10MB)
+                                        </p>
+                                    </div>
+
+                                    <!-- Selected File Info -->
+                                    <div v-if="selectedFile" class="rounded-md border border-green-200 bg-green-50 p-3">
+                                        <p class="text-sm text-green-800">
+                                            ✅ Selected: <strong>{{ selectedFile.name }}</strong>
+                                        </p>
+                                    </div>
+
+                                    <!-- Actions -->
+                                    <div class="flex justify-end gap-2">
+                                        <Button variant="outline" @click="isImportModalOpen = false">
+                                            Cancel
+                                        </Button>
+                                        <Button @click="submitImport" :disabled="!selectedFile">
+                                            Import Users
+                                        </Button>
+                                    </div>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
+
+                        <!-- Create User Button -->
+                        <Dialog v-model:open="isCreateModalOpen">
+                            <DialogTrigger asChild>
+                                <Button>Create User</Button>
+                            </DialogTrigger>
+                            <DialogContent class="sm:max-w-md">
                             <DialogHeader>
                                 <DialogTitle>Create New User</DialogTitle>
                             </DialogHeader>
@@ -593,6 +702,7 @@ const changePage = (url: string | null): void => {
                     </div>
                 </DialogContent>
             </Dialog>
+            </div>
         </div>
     </AppLayout>
 </template>

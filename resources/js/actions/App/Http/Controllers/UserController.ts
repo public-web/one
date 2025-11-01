@@ -613,6 +613,224 @@ activityLogsForm.head = (args: { id: string | number } | [id: string | number ] 
 
 activityLogs.form = activityLogsForm
 
-const UserController = { index, store, update, destroy, restore, forceDelete, activityLogs }
+/**
+* @see \App\Http\Controllers\UserController::exportMethod
+* @see app/Http/Controllers/UserController.php:260
+* @route '/users/export'
+*/
+export const exportMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: exportMethod.url(options),
+    method: 'get',
+})
+
+exportMethod.definition = {
+    methods: ["get","head"],
+    url: '/users/export',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\UserController::exportMethod
+* @see app/Http/Controllers/UserController.php:260
+* @route '/users/export'
+*/
+exportMethod.url = (options?: RouteQueryOptions) => {
+    return exportMethod.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\UserController::exportMethod
+* @see app/Http/Controllers/UserController.php:260
+* @route '/users/export'
+*/
+exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: exportMethod.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::exportMethod
+* @see app/Http/Controllers/UserController.php:260
+* @route '/users/export'
+*/
+exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: exportMethod.url(options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::exportMethod
+* @see app/Http/Controllers/UserController.php:260
+* @route '/users/export'
+*/
+const exportMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportMethod.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::exportMethod
+* @see app/Http/Controllers/UserController.php:260
+* @route '/users/export'
+*/
+exportMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportMethod.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::exportMethod
+* @see app/Http/Controllers/UserController.php:260
+* @route '/users/export'
+*/
+exportMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportMethod.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+exportMethod.form = exportMethodForm
+
+/**
+* @see \App\Http\Controllers\UserController::downloadTemplate
+* @see app/Http/Controllers/UserController.php:278
+* @route '/users/import/template'
+*/
+export const downloadTemplate = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: downloadTemplate.url(options),
+    method: 'get',
+})
+
+downloadTemplate.definition = {
+    methods: ["get","head"],
+    url: '/users/import/template',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\UserController::downloadTemplate
+* @see app/Http/Controllers/UserController.php:278
+* @route '/users/import/template'
+*/
+downloadTemplate.url = (options?: RouteQueryOptions) => {
+    return downloadTemplate.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\UserController::downloadTemplate
+* @see app/Http/Controllers/UserController.php:278
+* @route '/users/import/template'
+*/
+downloadTemplate.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: downloadTemplate.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::downloadTemplate
+* @see app/Http/Controllers/UserController.php:278
+* @route '/users/import/template'
+*/
+downloadTemplate.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: downloadTemplate.url(options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::downloadTemplate
+* @see app/Http/Controllers/UserController.php:278
+* @route '/users/import/template'
+*/
+const downloadTemplateForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: downloadTemplate.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::downloadTemplate
+* @see app/Http/Controllers/UserController.php:278
+* @route '/users/import/template'
+*/
+downloadTemplateForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: downloadTemplate.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::downloadTemplate
+* @see app/Http/Controllers/UserController.php:278
+* @route '/users/import/template'
+*/
+downloadTemplateForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: downloadTemplate.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+downloadTemplate.form = downloadTemplateForm
+
+/**
+* @see \App\Http\Controllers\UserController::importMethod
+* @see app/Http/Controllers/UserController.php:305
+* @route '/users/import'
+*/
+export const importMethod = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: importMethod.url(options),
+    method: 'post',
+})
+
+importMethod.definition = {
+    methods: ["post"],
+    url: '/users/import',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\UserController::importMethod
+* @see app/Http/Controllers/UserController.php:305
+* @route '/users/import'
+*/
+importMethod.url = (options?: RouteQueryOptions) => {
+    return importMethod.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\UserController::importMethod
+* @see app/Http/Controllers/UserController.php:305
+* @route '/users/import'
+*/
+importMethod.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: importMethod.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::importMethod
+* @see app/Http/Controllers/UserController.php:305
+* @route '/users/import'
+*/
+const importMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: importMethod.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::importMethod
+* @see app/Http/Controllers/UserController.php:305
+* @route '/users/import'
+*/
+importMethodForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: importMethod.url(options),
+    method: 'post',
+})
+
+importMethod.form = importMethodForm
+
+const UserController = { index, store, update, destroy, restore, forceDelete, activityLogs, exportMethod, downloadTemplate, importMethod, export: exportMethod, import: importMethod }
 
 export default UserController
