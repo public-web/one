@@ -5,23 +5,48 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { index as usersIndex } from '@/routes/users';
+import { index as activityLogsIndex } from '@/routes/activity-logs';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
-import { LayoutGrid,UsersRound} from 'lucide-vue-next';
+import { Link, usePage } from '@inertiajs/vue3';
+import { LayoutGrid, UsersRound, Activity } from 'lucide-vue-next';
+import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard().url,
-        icon: LayoutGrid,
-    },
-    {
-        title: 'usuarios',
-        href: usersIndex().url,
-        icon: UsersRound,
-    },
-];
+const page = usePage();
+
+// Check if current user is superadmin
+const isSuperAdmin = computed(() => {
+    const user = page.props.auth?.user as any;
+    return user?.roles?.some((role: any) => role.name === 'superadmin') ?? false;
+});
+
+const mainNavItems = computed<NavItem[]>(() => {
+    const items: NavItem[] = [
+        {
+            title: 'Dashboard',
+            href: dashboard().url,
+            icon: LayoutGrid,
+        },
+        {
+            title: 'usuarios',
+            href: usersIndex().url,
+            icon: UsersRound,
+        },
+    ];
+
+    // Add Activity Logs only for superadmins
+    if (isSuperAdmin.value) {
+        items.push({
+            title: 'Activity Logs',
+            href: activityLogsIndex().url,
+            icon: Activity,
+        });
+    }
+
+    return items;
+});
+
+const footerNavItems: NavItem[] = [];
 </script>
 
 <template>
