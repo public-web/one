@@ -255,6 +255,58 @@ class UserController extends Controller
     }
 
     /**
+     * Get user permissions (both from roles and direct permissions)
+     */
+    public function getPermissions(User $user)
+    {
+        $this->authorize('view', $user);
+
+        // Get all available permissions
+        $allPermissions = \Spatie\Permission\Models\Permission::all()->map(function ($permission) {
+            return [
+                'id' => $permission->id,
+                'name' => $permission->name,
+                'display_name' => ucfirst(str_replace('.', ' ', $permission->name)),
+            ];
+        });
+
+        // Get permissions from roles
+        $rolePermissions = $user->getPermissionsViaRoles()->pluck('name');
+
+        // Get direct permissions (not from roles)
+        $directPermissions = $user->permissions()->pluck('name');
+
+        return response()->json([
+            'all_permissions' => $allPermissions,
+            'role_permissions' => $rolePermissions,
+            'direct_permissions' => $directPermissions,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'roles' => $user->roles->pluck('name'),
+            ],
+        ]);
+    }
+
+    /**
+     * Update user direct permissions
+     */
+    public function updatePermissions(Request $request, User $user)
+    {
+        $this->authorize('update', $user);
+
+        $request->validate([
+            'permissions' => 'array',
+            'permissions.*' => 'string|exists:permissions,name',
+        ]);
+
+        // Sync direct permissions (this doesn't affect role permissions)
+        $user->syncPermissions($request->input('permissions', []));
+
+        return redirect()->back()->with('success', 'Permisos actualizados exitosamente');
+    }
+
+    /**
      * Export users to Excel/CSV
      */
     public function export(Request $request)

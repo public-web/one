@@ -6,9 +6,11 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { dashboard } from '@/routes';
 import { index as usersIndex } from '@/routes/users';
 import { index as activityLogsIndex } from '@/routes/activity-logs';
+import { index as rolesIndex } from '@/routes/roles';
+import { index as permissionsIndex } from '@/routes/permissions';
 import { type NavItem } from '@/types';
-import { Link, usePage } from '@inertiajs/vue3';
-import { LayoutGrid, UsersRound, Activity } from 'lucide-vue-next';
+import { Link, usePage, router } from '@inertiajs/vue3';
+import { LayoutGrid, UsersRound, Activity, Shield, Key } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
@@ -34,8 +36,18 @@ const mainNavItems = computed<NavItem[]>(() => {
         },
     ];
 
-    // Add Activity Logs only for superadmins
+    // Add Roles, Permissions and Activity Logs only for superadmins
     if (isSuperAdmin.value) {
+        items.push({
+            title: 'Roles',
+            href: rolesIndex().url,
+            icon: Shield,
+        });
+        items.push({
+            title: 'Permissions',
+            href: permissionsIndex().url,
+            icon: Key,
+        });
         items.push({
             title: 'Activity Logs',
             href: activityLogsIndex().url,

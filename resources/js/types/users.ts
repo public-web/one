@@ -89,3 +89,26 @@ export interface UsersPageProps {
  * Inertia error response type
  */
 export type InertiaErrors = Record<string, string | string[]>;
+
+/**
+ * Permission definition
+ */
+export interface Permission {
+    id: number;
+    name: string;
+    display_name: string;
+}
+
+/**
+ * User permissions response
+ */
+export interface UserPermissionsResponse {
+    all_permissions: Permission[];
+    role_permissions: string[];
+    direct_permissions: string[];
+    user: {
+        id: number;
+        name: string;
+        roles: string[];
+    };
+}

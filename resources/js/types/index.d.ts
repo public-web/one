@@ -15,6 +15,13 @@ export interface NavItem {
     href: NonNullable<InertiaLinkProps['href']>;
     icon?: LucideIcon;
     isActive?: boolean;
+    items?: NavSubItem[];
+}
+
+export interface NavSubItem {
+    title: string;
+    href?: NonNullable<InertiaLinkProps['href']> | string;
+    onClick?: () => void;
 }
 
 export type AppPageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {

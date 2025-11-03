@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\CheckPasswordChanged;
 use Illuminate\Support\Facades\Route;
@@ -29,15 +31,37 @@ Route::middleware(['auth', 'verified', CheckPasswordChanged::class])->group(func
         Route::delete('/{id}/force', [UserController::class, 'forceDelete'])->name('force-delete');
         Route::get('/{id}/activity-logs', [UserController::class, 'activityLogs'])->name('activity-logs');
 
+        // Permissions management
+        Route::get('/{user}/permissions', [UserController::class, 'getPermissions'])->name('permissions.get');
+        Route::post('/{user}/permissions', [UserController::class, 'updatePermissions'])->name('permissions.update');
+
         // Import/Export
         Route::get('/export', [UserController::class, 'export'])->name('export');
         Route::get('/import/template', [UserController::class, 'downloadTemplate'])->name('import.template');
         Route::post('/import', [UserController::class, 'import'])->name('import');
     });
 
+    // Roles management
+    Route::prefix('roles')->name('roles.')->group(function () {
+        Route::get('/', [RoleController::class, 'index'])->name('index');
+        Route::post('/', [RoleController::class, 'store'])->name('store');
+        Route::get('/{role}', [RoleController::class, 'show'])->name('show');
+        Route::match(['put', 'post'], '/{role}', [RoleController::class, 'update'])->name('update');
+        Route::match(['delete', 'post'], '/{role}/delete', [RoleController::class, 'destroy'])->name('destroy');
+        Route::post('/{role}/permissions', [RoleController::class, 'updatePermissions'])->name('permissions.update');
+    });
+
+    // Permissions management
+    Route::prefix('permissions')->name('permissions.')->group(function () {
+        Route::get('/', [PermissionController::class, 'index'])->name('index');
+        Route::post('/', [PermissionController::class, 'store'])->name('store');
+        Route::get('/{permission}', [PermissionController::class, 'show'])->name('show');
+        Route::match(['put', 'post'], '/{permission}', [PermissionController::class, 'update'])->name('update');
+        Route::match(['delete', 'post'], '/{permission}/delete', [PermissionController::class, 'destroy'])->name('destroy');
+    });
+
     // Future modules can be added here:
     // Route::prefix('contracts')->name('contracts.')->group(function () { ... });
-    // Route::prefix('roles')->name('roles.')->group(function () { ... });
 });
 
 require __DIR__.'/settings.php';

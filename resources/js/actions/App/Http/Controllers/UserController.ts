@@ -614,8 +614,193 @@ activityLogsForm.head = (args: { id: string | number } | [id: string | number ] 
 activityLogs.form = activityLogsForm
 
 /**
-* @see \App\Http\Controllers\UserController::exportMethod
+* @see \App\Http\Controllers\UserController::getPermissions
 * @see app/Http/Controllers/UserController.php:260
+* @route '/users/{user}/permissions'
+*/
+export const getPermissions = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: getPermissions.url(args, options),
+    method: 'get',
+})
+
+getPermissions.definition = {
+    methods: ["get","head"],
+    url: '/users/{user}/permissions',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\UserController::getPermissions
+* @see app/Http/Controllers/UserController.php:260
+* @route '/users/{user}/permissions'
+*/
+getPermissions.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { user: args }
+    }
+
+    if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
+        args = { user: args.id }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            user: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        user: typeof args.user === 'object'
+        ? args.user.id
+        : args.user,
+    }
+
+    return getPermissions.definition.url
+            .replace('{user}', parsedArgs.user.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\UserController::getPermissions
+* @see app/Http/Controllers/UserController.php:260
+* @route '/users/{user}/permissions'
+*/
+getPermissions.get = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: getPermissions.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::getPermissions
+* @see app/Http/Controllers/UserController.php:260
+* @route '/users/{user}/permissions'
+*/
+getPermissions.head = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: getPermissions.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::getPermissions
+* @see app/Http/Controllers/UserController.php:260
+* @route '/users/{user}/permissions'
+*/
+const getPermissionsForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getPermissions.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::getPermissions
+* @see app/Http/Controllers/UserController.php:260
+* @route '/users/{user}/permissions'
+*/
+getPermissionsForm.get = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getPermissions.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::getPermissions
+* @see app/Http/Controllers/UserController.php:260
+* @route '/users/{user}/permissions'
+*/
+getPermissionsForm.head = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getPermissions.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+getPermissions.form = getPermissionsForm
+
+/**
+* @see \App\Http\Controllers\UserController::updatePermissions
+* @see app/Http/Controllers/UserController.php:294
+* @route '/users/{user}/permissions'
+*/
+export const updatePermissions = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: updatePermissions.url(args, options),
+    method: 'post',
+})
+
+updatePermissions.definition = {
+    methods: ["post"],
+    url: '/users/{user}/permissions',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\UserController::updatePermissions
+* @see app/Http/Controllers/UserController.php:294
+* @route '/users/{user}/permissions'
+*/
+updatePermissions.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { user: args }
+    }
+
+    if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
+        args = { user: args.id }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            user: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        user: typeof args.user === 'object'
+        ? args.user.id
+        : args.user,
+    }
+
+    return updatePermissions.definition.url
+            .replace('{user}', parsedArgs.user.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\UserController::updatePermissions
+* @see app/Http/Controllers/UserController.php:294
+* @route '/users/{user}/permissions'
+*/
+updatePermissions.post = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: updatePermissions.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::updatePermissions
+* @see app/Http/Controllers/UserController.php:294
+* @route '/users/{user}/permissions'
+*/
+const updatePermissionsForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: updatePermissions.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\UserController::updatePermissions
+* @see app/Http/Controllers/UserController.php:294
+* @route '/users/{user}/permissions'
+*/
+updatePermissionsForm.post = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: updatePermissions.url(args, options),
+    method: 'post',
+})
+
+updatePermissions.form = updatePermissionsForm
+
+/**
+* @see \App\Http\Controllers\UserController::exportMethod
+* @see app/Http/Controllers/UserController.php:312
 * @route '/users/export'
 */
 export const exportMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -630,7 +815,7 @@ exportMethod.definition = {
 
 /**
 * @see \App\Http\Controllers\UserController::exportMethod
-* @see app/Http/Controllers/UserController.php:260
+* @see app/Http/Controllers/UserController.php:312
 * @route '/users/export'
 */
 exportMethod.url = (options?: RouteQueryOptions) => {
@@ -639,7 +824,7 @@ exportMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\UserController::exportMethod
-* @see app/Http/Controllers/UserController.php:260
+* @see app/Http/Controllers/UserController.php:312
 * @route '/users/export'
 */
 exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -649,7 +834,7 @@ exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\UserController::exportMethod
-* @see app/Http/Controllers/UserController.php:260
+* @see app/Http/Controllers/UserController.php:312
 * @route '/users/export'
 */
 exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -659,7 +844,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\UserController::exportMethod
-* @see app/Http/Controllers/UserController.php:260
+* @see app/Http/Controllers/UserController.php:312
 * @route '/users/export'
 */
 const exportMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -669,7 +854,7 @@ const exportMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get
 
 /**
 * @see \App\Http\Controllers\UserController::exportMethod
-* @see app/Http/Controllers/UserController.php:260
+* @see app/Http/Controllers/UserController.php:312
 * @route '/users/export'
 */
 exportMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -679,7 +864,7 @@ exportMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'>
 
 /**
 * @see \App\Http\Controllers\UserController::exportMethod
-* @see app/Http/Controllers/UserController.php:260
+* @see app/Http/Controllers/UserController.php:312
 * @route '/users/export'
 */
 exportMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -696,7 +881,7 @@ exportMethod.form = exportMethodForm
 
 /**
 * @see \App\Http\Controllers\UserController::downloadTemplate
-* @see app/Http/Controllers/UserController.php:278
+* @see app/Http/Controllers/UserController.php:330
 * @route '/users/import/template'
 */
 export const downloadTemplate = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -711,7 +896,7 @@ downloadTemplate.definition = {
 
 /**
 * @see \App\Http\Controllers\UserController::downloadTemplate
-* @see app/Http/Controllers/UserController.php:278
+* @see app/Http/Controllers/UserController.php:330
 * @route '/users/import/template'
 */
 downloadTemplate.url = (options?: RouteQueryOptions) => {
@@ -720,7 +905,7 @@ downloadTemplate.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\UserController::downloadTemplate
-* @see app/Http/Controllers/UserController.php:278
+* @see app/Http/Controllers/UserController.php:330
 * @route '/users/import/template'
 */
 downloadTemplate.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -730,7 +915,7 @@ downloadTemplate.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => 
 
 /**
 * @see \App\Http\Controllers\UserController::downloadTemplate
-* @see app/Http/Controllers/UserController.php:278
+* @see app/Http/Controllers/UserController.php:330
 * @route '/users/import/template'
 */
 downloadTemplate.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -740,7 +925,7 @@ downloadTemplate.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
 
 /**
 * @see \App\Http\Controllers\UserController::downloadTemplate
-* @see app/Http/Controllers/UserController.php:278
+* @see app/Http/Controllers/UserController.php:330
 * @route '/users/import/template'
 */
 const downloadTemplateForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -750,7 +935,7 @@ const downloadTemplateForm = (options?: RouteQueryOptions): RouteFormDefinition<
 
 /**
 * @see \App\Http\Controllers\UserController::downloadTemplate
-* @see app/Http/Controllers/UserController.php:278
+* @see app/Http/Controllers/UserController.php:330
 * @route '/users/import/template'
 */
 downloadTemplateForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -760,7 +945,7 @@ downloadTemplateForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'g
 
 /**
 * @see \App\Http\Controllers\UserController::downloadTemplate
-* @see app/Http/Controllers/UserController.php:278
+* @see app/Http/Controllers/UserController.php:330
 * @route '/users/import/template'
 */
 downloadTemplateForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -777,7 +962,7 @@ downloadTemplate.form = downloadTemplateForm
 
 /**
 * @see \App\Http\Controllers\UserController::importMethod
-* @see app/Http/Controllers/UserController.php:305
+* @see app/Http/Controllers/UserController.php:357
 * @route '/users/import'
 */
 export const importMethod = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -792,7 +977,7 @@ importMethod.definition = {
 
 /**
 * @see \App\Http\Controllers\UserController::importMethod
-* @see app/Http/Controllers/UserController.php:305
+* @see app/Http/Controllers/UserController.php:357
 * @route '/users/import'
 */
 importMethod.url = (options?: RouteQueryOptions) => {
@@ -801,7 +986,7 @@ importMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\UserController::importMethod
-* @see app/Http/Controllers/UserController.php:305
+* @see app/Http/Controllers/UserController.php:357
 * @route '/users/import'
 */
 importMethod.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -811,7 +996,7 @@ importMethod.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\UserController::importMethod
-* @see app/Http/Controllers/UserController.php:305
+* @see app/Http/Controllers/UserController.php:357
 * @route '/users/import'
 */
 const importMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -821,7 +1006,7 @@ const importMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'pos
 
 /**
 * @see \App\Http\Controllers\UserController::importMethod
-* @see app/Http/Controllers/UserController.php:305
+* @see app/Http/Controllers/UserController.php:357
 * @route '/users/import'
 */
 importMethodForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -831,6 +1016,6 @@ importMethodForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post
 
 importMethod.form = importMethodForm
 
-const UserController = { index, store, update, destroy, restore, forceDelete, activityLogs, exportMethod, downloadTemplate, importMethod, export: exportMethod, import: importMethod }
+const UserController = { index, store, update, destroy, restore, forceDelete, activityLogs, getPermissions, updatePermissions, exportMethod, downloadTemplate, importMethod, export: exportMethod, import: importMethod }
 
 export default UserController

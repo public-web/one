@@ -1,4 +1,5 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+import permissions from './permissions'
 /**
 * @see \App\Http\Controllers\UserController::index
 * @see app/Http/Controllers/UserController.php:10
@@ -615,7 +616,7 @@ activityLogs.form = activityLogsForm
 
 /**
 * @see \App\Http\Controllers\UserController::exportMethod
-* @see app/Http/Controllers/UserController.php:260
+* @see app/Http/Controllers/UserController.php:312
 * @route '/users/export'
 */
 export const exportMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -630,7 +631,7 @@ exportMethod.definition = {
 
 /**
 * @see \App\Http\Controllers\UserController::exportMethod
-* @see app/Http/Controllers/UserController.php:260
+* @see app/Http/Controllers/UserController.php:312
 * @route '/users/export'
 */
 exportMethod.url = (options?: RouteQueryOptions) => {
@@ -639,7 +640,7 @@ exportMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\UserController::exportMethod
-* @see app/Http/Controllers/UserController.php:260
+* @see app/Http/Controllers/UserController.php:312
 * @route '/users/export'
 */
 exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -649,7 +650,7 @@ exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\UserController::exportMethod
-* @see app/Http/Controllers/UserController.php:260
+* @see app/Http/Controllers/UserController.php:312
 * @route '/users/export'
 */
 exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -659,7 +660,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\UserController::exportMethod
-* @see app/Http/Controllers/UserController.php:260
+* @see app/Http/Controllers/UserController.php:312
 * @route '/users/export'
 */
 const exportMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -669,7 +670,7 @@ const exportMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get
 
 /**
 * @see \App\Http\Controllers\UserController::exportMethod
-* @see app/Http/Controllers/UserController.php:260
+* @see app/Http/Controllers/UserController.php:312
 * @route '/users/export'
 */
 exportMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -679,7 +680,7 @@ exportMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'>
 
 /**
 * @see \App\Http\Controllers\UserController::exportMethod
-* @see app/Http/Controllers/UserController.php:260
+* @see app/Http/Controllers/UserController.php:312
 * @route '/users/export'
 */
 exportMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -696,7 +697,7 @@ exportMethod.form = exportMethodForm
 
 /**
 * @see \App\Http\Controllers\UserController::importMethod
-* @see app/Http/Controllers/UserController.php:305
+* @see app/Http/Controllers/UserController.php:357
 * @route '/users/import'
 */
 export const importMethod = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -711,7 +712,7 @@ importMethod.definition = {
 
 /**
 * @see \App\Http\Controllers\UserController::importMethod
-* @see app/Http/Controllers/UserController.php:305
+* @see app/Http/Controllers/UserController.php:357
 * @route '/users/import'
 */
 importMethod.url = (options?: RouteQueryOptions) => {
@@ -720,7 +721,7 @@ importMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\UserController::importMethod
-* @see app/Http/Controllers/UserController.php:305
+* @see app/Http/Controllers/UserController.php:357
 * @route '/users/import'
 */
 importMethod.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -730,7 +731,7 @@ importMethod.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\UserController::importMethod
-* @see app/Http/Controllers/UserController.php:305
+* @see app/Http/Controllers/UserController.php:357
 * @route '/users/import'
 */
 const importMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -740,7 +741,7 @@ const importMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'pos
 
 /**
 * @see \App\Http\Controllers\UserController::importMethod
-* @see app/Http/Controllers/UserController.php:305
+* @see app/Http/Controllers/UserController.php:357
 * @route '/users/import'
 */
 importMethodForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -758,6 +759,7 @@ const users = {
     restore: Object.assign(restore, restore),
     forceDelete: Object.assign(forceDelete, forceDelete),
     activityLogs: Object.assign(activityLogs, activityLogs),
+    permissions: Object.assign(permissions, permissions),
     export: Object.assign(exportMethod, exportMethod),
     import: Object.assign(importMethod, importMethod),
 }

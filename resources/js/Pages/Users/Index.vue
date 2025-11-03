@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -9,11 +9,13 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import type { InertiaErrors, User, UserFormData, UsersPageProps, UserSubmitData } from '@/types/users';
-import { Head, router, useForm, usePage } from '@inertiajs/vue3';
-import { ref, watch, computed } from 'vue';
+import { Head, router, usePage } from '@inertiajs/vue3';
+import { ref, watch } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
 
 const props = defineProps<UsersPageProps>();
+
+const page = usePage();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -34,6 +36,20 @@ const viewingUser = ref<User | null>(null);
 const formErrors = ref<Record<string, string>>({});
 const isImportModalOpen = ref(false);
 const selectedFile = ref<File | null>(null);
+
+// Check if we should open import modal based on URL parameter
+watch(() => page.url, (newUrl) => {
+    const url = new URL(newUrl, window.location.origin);
+    if (url.searchParams.get('import') === 'true') {
+        isImportModalOpen.value = true;
+        // Clean up the URL parameter
+        router.visit('/users', {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
+    }
+}, { immediate: true });
 
 // Helper function to get default user form values
 const getDefaultUserForm = (): UserFormData => ({
@@ -278,86 +294,30 @@ const downloadTemplate = (): void => {
     <Head title="User Management" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-            <div class="space-y-4">
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <h2 class="text-2xl font-bold">User Management</h2>
+        <div class="flex h-full flex-1 flex-col gap-6 rounded-xl p-6">
+            <!-- Header with Actions -->
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold tracking-tight">User Management</h1>
+                    <p class="text-sm text-gray-500 mt-1">Manage user accounts, roles, and permissions</p>
+                </div>
 
-                    <div class="flex flex-wrap gap-2">
-                        <!-- Export Buttons -->
-                        <Button @click="exportUsers('xlsx')" variant="outline" size="sm">
-                            📊 Export Excel
-                        </Button>
-                        <Button @click="exportUsers('csv')" variant="outline" size="sm">
-                            📄 Export CSV
-                        </Button>
-
-                        <!-- Import Button -->
-                        <Dialog v-model:open="isImportModalOpen">
-                            <DialogTrigger asChild>
-                                <Button variant="outline" size="sm">
-                                    📥 Import Users
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent class="sm:max-w-lg">
-                                <DialogHeader>
-                                    <DialogTitle>Import Users from CSV/Excel</DialogTitle>
-                                </DialogHeader>
-                                <div class="space-y-4">
-                                    <!-- Download Template -->
-                                    <div class="rounded-md border border-blue-200 bg-blue-50 p-4">
-                                        <p class="text-sm text-blue-800">
-                                            <strong>First time importing?</strong> Download our template to see the required format.
-                                        </p>
-                                        <Button
-                                            variant="link"
-                                            @click="downloadTemplate"
-                                            class="mt-2 text-blue-600"
-                                        >
-                                            📥 Download Template
-                                        </Button>
-                                    </div>
-
-                                    <!-- File Upload -->
-                                    <div>
-                                        <label class="text-sm font-medium">Select File</label>
-                                        <input
-                                            type="file"
-                                            @change="handleFileSelect"
-                                            accept=".csv,.xlsx,.xls"
-                                            class="mt-1 w-full rounded-md border border-gray-300 p-2 text-sm"
-                                        />
-                                        <p class="mt-1 text-xs text-gray-500">
-                                            Accepted formats: CSV, XLSX, XLS (Max 10MB)
-                                        </p>
-                                    </div>
-
-                                    <!-- Selected File Info -->
-                                    <div v-if="selectedFile" class="rounded-md border border-green-200 bg-green-50 p-3">
-                                        <p class="text-sm text-green-800">
-                                            ✅ Selected: <strong>{{ selectedFile.name }}</strong>
-                                        </p>
-                                    </div>
-
-                                    <!-- Actions -->
-                                    <div class="flex justify-end gap-2">
-                                        <Button variant="outline" @click="isImportModalOpen = false">
-                                            Cancel
-                                        </Button>
-                                        <Button @click="submitImport" :disabled="!selectedFile">
-                                            Import Users
-                                        </Button>
-                                    </div>
-                                </div>
-                            </DialogContent>
-                        </Dialog>
-
-                        <!-- Create User Button -->
-                        <Dialog v-model:open="isCreateModalOpen">
-                            <DialogTrigger asChild>
-                                <Button>Create User</Button>
-                            </DialogTrigger>
-                            <DialogContent class="sm:max-w-md">
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap gap-2">
+                    <Button @click="exportUsers('csv')" variant="outline" size="sm">
+                        Export CSV
+                    </Button>
+                    <Button @click="exportUsers('xlsx')" variant="outline" size="sm">
+                        Export Excel
+                    </Button>
+                    <Button @click="isImportModalOpen = true" variant="outline" size="sm">
+                        Import Users
+                    </Button>
+                    <Dialog v-model:open="isCreateModalOpen">
+                        <DialogTrigger asChild>
+                            <Button size="sm">Create User</Button>
+                        </DialogTrigger>
+                        <DialogContent class="sm:max-w-md">
                             <DialogHeader>
                                 <DialogTitle>Create New User</DialogTitle>
                             </DialogHeader>
@@ -417,304 +377,298 @@ const downloadTemplate = (): void => {
                         </DialogContent>
                     </Dialog>
                 </div>
-
-                <!-- Filters Section -->
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Filters</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
-                            <!-- Search -->
-                            <div>
-                                <label class="text-sm font-medium">Search</label>
-                                <Input
-                                    v-model="filters.search"
-                                    @input="debouncedApplyFilters"
-                                    placeholder="Name or email..."
-                                    class="mt-1"
-                                />
-                            </div>
-
-                            <!-- Role Filter -->
-                            <div>
-                                <label class="text-sm font-medium">Role</label>
-                                <select
-                                    v-model="filters.role"
-                                    class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                >
-                                    <option value="">All Roles</option>
-                                    <option v-for="role in availableRoles" :key="role.id" :value="role.name">
-                                        {{ role.name.charAt(0).toUpperCase() + role.name.slice(1) }}
-                                    </option>
-                                </select>
-                            </div>
-
-                            <!-- Status Filter -->
-                            <div>
-                                <label class="text-sm font-medium">Status</label>
-                                <select
-                                    v-model="filters.status"
-                                    class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                >
-                                    <option value="">All Status</option>
-                                    <option value="active">Active</option>
-                                    <option value="inactive">Inactive</option>
-                                    <option value="deleted">Deleted</option>
-                                </select>
-                            </div>
-
-                            <!-- Expiration Filter -->
-                            <div>
-                                <label class="text-sm font-medium">Expiration</label>
-                                <select
-                                    v-model="filters.expiring"
-                                    class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                >
-                                    <option value="">All</option>
-                                    <option value="soon">Expiring Soon (30 days)</option>
-                                    <option value="expired">Expired</option>
-                                </select>
-                            </div>
-
-                            <!-- Reset Button -->
-                            <div class="flex items-end">
-                                <Button @click="resetFilters" variant="outline" class="w-full">
-                                    Clear Filters
-                                </Button>
-                            </div>
-                        </div>
-
-                        <!-- Active Filters Display -->
-                        <div v-if="filters.search || filters.role || filters.status || filters.expiring" class="mt-4 flex flex-wrap gap-2">
-                            <span class="text-sm font-medium text-gray-600">Active filters:</span>
-                            <span v-if="filters.search" class="rounded bg-blue-100 px-2 py-1 text-xs text-blue-800">
-                                Search: {{ filters.search }}
-                            </span>
-                            <span v-if="filters.role" class="rounded bg-blue-100 px-2 py-1 text-xs text-blue-800">
-                                Role: {{ filters.role }}
-                            </span>
-                            <span v-if="filters.status" class="rounded bg-blue-100 px-2 py-1 text-xs text-blue-800">
-                                Status: {{ filters.status }}
-                            </span>
-                            <span v-if="filters.expiring" class="rounded bg-blue-100 px-2 py-1 text-xs text-blue-800">
-                                Expiration: {{ filters.expiring }}
-                            </span>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <!-- Users Table -->
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Users List</CardTitle>
-                    </CardHeader>
-                    <CardContent class="p-0">
-                        <div class="overflow-x-auto">
-                            <table class="w-full border-collapse">
-                                <thead>
-                                    <tr class="border-b bg-gray-50">
-                                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">User</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Email</th>
-                                        <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">Status</th>
-                                        <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">Role</th>
-                                        <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">2FA</th>
-                                        <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">Expires</th>
-                                        <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-600">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200 bg-white">
-                                    <tr v-for="user in (users.data || users)" :key="user.id" class="hover:bg-gray-50 transition-colors">
-                                        <!-- User Column (Name + ID) -->
-                                        <td class="px-4 py-4">
-                                            <div class="flex items-center gap-3">
-                                                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-sm font-semibold text-white">
-                                                    {{ user.name.charAt(0).toUpperCase() }}
-                                                </div>
-                                                <div>
-                                                    <div class="font-medium text-gray-900">{{ user.name }}</div>
-                                                    <div class="text-xs text-gray-500">ID: {{ user.id }}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-
-                                        <!-- Email Column -->
-                                        <td class="px-4 py-4">
-                                            <div class="text-sm text-gray-900">{{ user.email }}</div>
-                                        </td>
-
-                                        <!-- Status Column -->
-                                        <td class="px-4 py-4 text-center">
-                                            <span
-                                                v-if="user.deleted_at"
-                                                class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-800"
-                                            >
-                                                🗑️ Deleted
-                                            </span>
-                                            <span
-                                                v-else-if="user.expires_at && new Date(user.expires_at) < new Date()"
-                                                class="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800"
-                                            >
-                                                ⚠️ Expired
-                                            </span>
-                                            <span
-                                                v-else-if="user.active"
-                                                class="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800"
-                                            >
-                                                ✓ Active
-                                            </span>
-                                            <span
-                                                v-else
-                                                class="inline-flex items-center rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-800"
-                                            >
-                                                ⏸ Inactive
-                                            </span>
-                                        </td>
-
-                                        <!-- Role Column -->
-                                        <td class="px-4 py-4 text-center">
-                                            <span
-                                                v-for="role in user.roles"
-                                                :key="`${user.id}-${role.name}`"
-                                                :class="{
-                                                    'bg-purple-100 text-purple-800': role.name === 'superadmin',
-                                                    'bg-blue-100 text-blue-800': role.name === 'admin',
-                                                    'bg-gray-100 text-gray-800': role.name === 'user',
-                                                }"
-                                                class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium capitalize"
-                                            >
-                                                {{ role.name }}
-                                            </span>
-                                        </td>
-
-                                        <!-- 2FA Column -->
-                                        <td class="px-4 py-4 text-center">
-                                            <span
-                                                v-if="user.require_2fa"
-                                                class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800"
-                                            >
-                                                🔒 Required
-                                            </span>
-                                            <span
-                                                v-else
-                                                class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600"
-                                            >
-                                                Optional
-                                            </span>
-                                        </td>
-
-                                        <!-- Expires Column -->
-                                        <td class="px-4 py-4 text-center">
-                                            <span
-                                                v-if="user.expires_at"
-                                                :class="
-                                                    new Date(user.expires_at) < new Date()
-                                                        ? 'bg-red-100 text-red-800'
-                                                        : 'bg-yellow-100 text-yellow-800'
-                                                "
-                                                class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
-                                            >
-                                                {{ new Date(user.expires_at).toLocaleDateString() }}
-                                            </span>
-                                            <span
-                                                v-else
-                                                class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600"
-                                            >
-                                                No limit
-                                            </span>
-                                        </td>
-
-                                        <!-- Actions Column -->
-                                        <td class="px-4 py-4">
-                                            <div v-if="user.deleted_at" class="flex justify-end">
-                                                <Button size="sm" variant="default" @click="restoreUser(user.id)" class="whitespace-nowrap">
-                                                    Restore
-                                                </Button>
-                                            </div>
-                                            <div v-else class="flex justify-end gap-1">
-                                                <Button
-                                                    size="sm"
-                                                    variant="ghost"
-                                                    @click="openActivityModal(user)"
-                                                    title="View Activity Log"
-                                                    class="h-8 w-8 p-0"
-                                                >
-                                                    📋
-                                                </Button>
-                                                <Button
-                                                    size="sm"
-                                                    variant="ghost"
-                                                    @click="openEditModal(user)"
-                                                    title="Edit User"
-                                                    class="h-8 w-8 p-0"
-                                                >
-                                                    ✏️
-                                                </Button>
-                                                <Button
-                                                    size="sm"
-                                                    variant="ghost"
-                                                    @click="deleteUser(user.id)"
-                                                    title="Delete User"
-                                                    class="h-8 w-8 p-0 text-red-600 hover:bg-red-50 hover:text-red-700"
-                                                >
-                                                    🗑️
-                                                </Button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr v-if="users.data && users.data.length === 0">
-                                        <td colspan="7" class="px-4 py-8 text-center text-gray-500">
-                                            <div class="flex flex-col items-center gap-2">
-                                                <span class="text-4xl">👥</span>
-                                                <p class="text-sm font-medium">No users found</p>
-                                                <p class="text-xs text-gray-400">Try adjusting your filters</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Pagination -->
-                        <div v-if="users.data && users.data.length > 0" class="mt-4 space-y-4">
-                            <!-- Results summary and per-page selector -->
-                            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-                                <div class="text-sm text-gray-600">
-                                    Showing {{ users.from }} to {{ users.to }} of {{ users.total }} users
-                                </div>
-
-                                <div class="flex items-center gap-2">
-                                    <label class="text-sm font-medium text-gray-600">Per page:</label>
-                                    <select
-                                        v-model.number="filters.per_page"
-                                        class="rounded-md border border-gray-300 px-3 py-1 text-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                    >
-                                        <option :value="10">10</option>
-                                        <option :value="15">15</option>
-                                        <option :value="25">25</option>
-                                        <option :value="50">50</option>
-                                        <option :value="100">100</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Pagination buttons -->
-                            <div class="flex flex-wrap items-center justify-center gap-2">
-                                <Button
-                                    v-for="(link, index) in users.links"
-                                    :key="index"
-                                    @click="changePage(link.url)"
-                                    :disabled="!link.url || link.active"
-                                    :variant="link.active ? 'default' : 'outline'"
-                                    size="sm"
-                                    v-html="link.label"
-                                    class="min-w-[40px]"
-                                />
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
             </div>
+
+            <!-- Filters Section -->
+            <Card>
+                <CardContent class="pt-6">
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
+                        <!-- Search -->
+                        <div class="lg:col-span-2">
+                            <label class="text-xs font-medium text-gray-600">Search</label>
+                            <Input
+                                v-model="filters.search"
+                                @input="debouncedApplyFilters"
+                                placeholder="Name or email..."
+                                class="mt-1 h-9"
+                            />
+                        </div>
+
+                        <!-- Role Filter -->
+                        <div>
+                            <label class="text-xs font-medium text-gray-600">Role</label>
+                            <select
+                                v-model="filters.role"
+                                class="mt-1 h-9 w-full rounded-md border border-gray-300 px-2 text-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            >
+                                <option value="">All Roles</option>
+                                <option v-for="role in availableRoles" :key="role.id" :value="role.name">
+                                    {{ role.name.charAt(0).toUpperCase() + role.name.slice(1) }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Status Filter -->
+                        <div>
+                            <label class="text-xs font-medium text-gray-600">Status</label>
+                            <select
+                                v-model="filters.status"
+                                class="mt-1 h-9 w-full rounded-md border border-gray-300 px-2 text-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            >
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="deleted">Deleted</option>
+                            </select>
+                        </div>
+
+                        <!-- Expiration Filter -->
+                        <div>
+                            <label class="text-xs font-medium text-gray-600">Expiration</label>
+                            <select
+                                v-model="filters.expiring"
+                                class="mt-1 h-9 w-full rounded-md border border-gray-300 px-2 text-sm focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            >
+                                <option value="">All</option>
+                                <option value="soon">Expiring Soon</option>
+                                <option value="expired">Expired</option>
+                            </select>
+                        </div>
+
+                        <!-- Reset Button -->
+                        <div class="flex items-end">
+                            <Button @click="resetFilters" variant="outline" size="sm" class="h-9 w-full">
+                                Clear
+                            </Button>
+                        </div>
+                    </div>
+
+                    <!-- Active Filters Display -->
+                    <div v-if="filters.search || filters.role || filters.status || filters.expiring" class="mt-3 flex flex-wrap gap-2">
+                        <span class="text-xs font-medium text-gray-600">Active:</span>
+                        <span v-if="filters.search" class="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-800">
+                            {{ filters.search }}
+                        </span>
+                        <span v-if="filters.role" class="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-800">
+                            {{ filters.role }}
+                        </span>
+                        <span v-if="filters.status" class="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-800">
+                            {{ filters.status }}
+                        </span>
+                        <span v-if="filters.expiring" class="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-800">
+                            {{ filters.expiring }}
+                        </span>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <!-- Users Table -->
+            <Card>
+                <CardContent class="p-0">
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse">
+                            <thead>
+                                <tr class="border-b bg-gray-50/50">
+                                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">User</th>
+                                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">Email</th>
+                                    <th class="px-3 py-2.5 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">Status</th>
+                                    <th class="px-3 py-2.5 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">Role</th>
+                                    <th class="px-3 py-2.5 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">2FA</th>
+                                    <th class="px-3 py-2.5 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">Expires</th>
+                                    <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-gray-600">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 bg-white">
+                                <tr v-for="user in (users.data || users)" :key="user.id" class="hover:bg-gray-50/50 transition-colors">
+                                    <!-- User Column (Name + ID) -->
+                                    <td class="px-3 py-3">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-xs font-semibold text-white">
+                                                {{ user.name.charAt(0).toUpperCase() }}
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">{{ user.name }}</div>
+                                                <div class="text-xs text-gray-500">ID: {{ user.id }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <!-- Email Column -->
+                                    <td class="px-3 py-3">
+                                        <div class="text-sm text-gray-700">{{ user.email }}</div>
+                                    </td>
+
+                                    <!-- Status Column -->
+                                    <td class="px-3 py-3 text-center">
+                                        <span
+                                            v-if="user.deleted_at"
+                                            class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800"
+                                        >
+                                            Deleted
+                                        </span>
+                                        <span
+                                            v-else-if="user.expires_at && new Date(user.expires_at) < new Date()"
+                                            class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800"
+                                        >
+                                            Expired
+                                        </span>
+                                        <span
+                                            v-else-if="user.active"
+                                            class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800"
+                                        >
+                                            Active
+                                        </span>
+                                        <span
+                                            v-else
+                                            class="inline-flex items-center rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-orange-800"
+                                        >
+                                            Inactive
+                                        </span>
+                                    </td>
+
+                                    <!-- Role Column -->
+                                    <td class="px-3 py-3 text-center">
+                                        <span
+                                            v-for="role in user.roles"
+                                            :key="`${user.id}-${role.name}`"
+                                            :class="{
+                                                'bg-purple-100 text-purple-800': role.name === 'superadmin',
+                                                'bg-blue-100 text-blue-800': role.name === 'admin',
+                                                'bg-gray-100 text-gray-800': role.name === 'user',
+                                            }"
+                                            class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize"
+                                        >
+                                            {{ role.name }}
+                                        </span>
+                                    </td>
+
+                                    <!-- 2FA Column -->
+                                    <td class="px-3 py-3 text-center">
+                                        <span
+                                            v-if="user.require_2fa"
+                                            class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800"
+                                        >
+                                            Required
+                                        </span>
+                                        <span
+                                            v-else
+                                            class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600"
+                                        >
+                                            Optional
+                                        </span>
+                                    </td>
+
+                                    <!-- Expires Column -->
+                                    <td class="px-3 py-3 text-center">
+                                        <span
+                                            v-if="user.expires_at"
+                                            :class="
+                                                new Date(user.expires_at) < new Date()
+                                                    ? 'bg-red-100 text-red-800'
+                                                    : 'bg-yellow-100 text-yellow-800'
+                                            "
+                                            class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                                        >
+                                            {{ new Date(user.expires_at).toLocaleDateString() }}
+                                        </span>
+                                        <span
+                                            v-else
+                                            class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600"
+                                        >
+                                            No limit
+                                        </span>
+                                    </td>
+
+                                    <!-- Actions Column -->
+                                    <td class="px-3 py-3">
+                                        <div v-if="user.deleted_at" class="flex justify-end">
+                                            <Button size="sm" variant="default" @click="restoreUser(user.id)" class="h-7 text-xs whitespace-nowrap px-2.5">
+                                                Restore
+                                            </Button>
+                                        </div>
+                                        <div v-else class="flex justify-end gap-1">
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                @click="openActivityModal(user)"
+                                                title="View Activity Log"
+                                                class="h-7 w-7 p-0 text-xs"
+                                            >
+                                                📋
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                @click="openEditModal(user)"
+                                                title="Edit User"
+                                                class="h-7 w-7 p-0 text-xs"
+                                            >
+                                                ✏️
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                @click="deleteUser(user.id)"
+                                                title="Delete User"
+                                                class="h-7 w-7 p-0 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
+                                            >
+                                                🗑️
+                                            </Button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr v-if="users.data && users.data.length === 0">
+                                    <td colspan="7" class="px-3 py-12 text-center text-gray-500">
+                                        <div class="flex flex-col items-center gap-2">
+                                            <span class="text-3xl">👥</span>
+                                            <p class="text-sm font-medium">No users found</p>
+                                            <p class="text-xs text-gray-400">Try adjusting your filters</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div v-if="users.data && users.data.length > 0" class="border-t border-gray-100 bg-gray-50/50 px-4 py-3">
+                        <!-- Results summary and per-page selector -->
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-3">
+                            <div class="text-xs text-gray-600">
+                                Showing {{ users.from }} to {{ users.to }} of {{ users.total }} users
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <label class="text-xs font-medium text-gray-600">Per page:</label>
+                                <select
+                                    v-model.number="filters.per_page"
+                                    class="h-8 rounded-md border border-gray-300 px-2 text-xs focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                >
+                                    <option :value="10">10</option>
+                                    <option :value="15">15</option>
+                                    <option :value="25">25</option>
+                                    <option :value="50">50</option>
+                                    <option :value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Pagination buttons -->
+                        <div class="flex flex-wrap items-center justify-center gap-1.5">
+                            <Button
+                                v-for="(link, index) in users.links"
+                                :key="index"
+                                @click="changePage(link.url)"
+                                :disabled="!link.url || link.active"
+                                :variant="link.active ? 'default' : 'outline'"
+                                size="sm"
+                                v-html="link.label"
+                                class="min-w-[32px] h-8 px-2 text-xs"
+                            />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
 
             <!-- Edit Modal -->
             <Dialog v-model:open="isEditModalOpen">
@@ -763,6 +717,61 @@ const downloadTemplate = (): void => {
                 </DialogContent>
             </Dialog>
 
+            <!-- Import Modal -->
+            <Dialog v-model:open="isImportModalOpen">
+                <DialogContent class="sm:max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>Import Users from CSV/Excel</DialogTitle>
+                    </DialogHeader>
+                    <div class="space-y-4">
+                        <!-- Download Template -->
+                        <div class="rounded-md border border-blue-200 bg-blue-50 p-4">
+                            <p class="text-sm text-blue-800">
+                                <strong>First time importing?</strong> Download our template to see the required format.
+                            </p>
+                            <Button
+                                variant="link"
+                                @click="downloadTemplate"
+                                class="mt-2 text-blue-600"
+                            >
+                                Download Template
+                            </Button>
+                        </div>
+
+                        <!-- File Upload -->
+                        <div>
+                            <label class="text-sm font-medium">Select File</label>
+                            <input
+                                type="file"
+                                @change="handleFileSelect"
+                                accept=".csv,.xlsx,.xls"
+                                class="mt-1 w-full rounded-md border border-gray-300 p-2 text-sm"
+                            />
+                            <p class="mt-1 text-xs text-gray-500">
+                                Accepted formats: CSV, XLSX, XLS (Max 10MB)
+                            </p>
+                        </div>
+
+                        <!-- Selected File Info -->
+                        <div v-if="selectedFile" class="rounded-md border border-green-200 bg-green-50 p-3">
+                            <p class="text-sm text-green-800">
+                                Selected: <strong>{{ selectedFile.name }}</strong>
+                            </p>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex justify-end gap-2">
+                            <Button variant="outline" @click="isImportModalOpen = false">
+                                Cancel
+                            </Button>
+                            <Button @click="submitImport" :disabled="!selectedFile">
+                                Import Users
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
             <!-- Activity Log Modal -->
             <Dialog v-model:open="isActivityModalOpen">
                 <DialogContent class="sm:max-w-4xl max-h-[80vh] overflow-y-auto">
@@ -779,7 +788,6 @@ const downloadTemplate = (): void => {
                     </div>
                 </DialogContent>
             </Dialog>
-            </div>
         </div>
     </AppLayout>
 </template>
