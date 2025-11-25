@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\UserController::get
-* @see app/Http/Controllers/UserController.php:260
+* @see app/Http/Controllers/UserController.php:261
 * @route '/users/{user}/permissions'
 */
 export const get = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ get.definition = {
 
 /**
 * @see \App\Http\Controllers\UserController::get
-* @see app/Http/Controllers/UserController.php:260
+* @see app/Http/Controllers/UserController.php:261
 * @route '/users/{user}/permissions'
 */
 get.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ get.url = (args: { user: number | { id: number } } | [user: number | { id: numbe
 
 /**
 * @see \App\Http\Controllers\UserController::get
-* @see app/Http/Controllers/UserController.php:260
+* @see app/Http/Controllers/UserController.php:261
 * @route '/users/{user}/permissions'
 */
 get.get = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -59,7 +59,7 @@ get.get = (args: { user: number | { id: number } } | [user: number | { id: numbe
 
 /**
 * @see \App\Http\Controllers\UserController::get
-* @see app/Http/Controllers/UserController.php:260
+* @see app/Http/Controllers/UserController.php:261
 * @route '/users/{user}/permissions'
 */
 get.head = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -69,7 +69,7 @@ get.head = (args: { user: number | { id: number } } | [user: number | { id: numb
 
 /**
 * @see \App\Http\Controllers\UserController::get
-* @see app/Http/Controllers/UserController.php:260
+* @see app/Http/Controllers/UserController.php:261
 * @route '/users/{user}/permissions'
 */
 const getForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ const getForm = (args: { user: number | { id: number } } | [user: number | { id:
 
 /**
 * @see \App\Http\Controllers\UserController::get
-* @see app/Http/Controllers/UserController.php:260
+* @see app/Http/Controllers/UserController.php:261
 * @route '/users/{user}/permissions'
 */
 getForm.get = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -89,7 +89,7 @@ getForm.get = (args: { user: number | { id: number } } | [user: number | { id: n
 
 /**
 * @see \App\Http\Controllers\UserController::get
-* @see app/Http/Controllers/UserController.php:260
+* @see app/Http/Controllers/UserController.php:261
 * @route '/users/{user}/permissions'
 */
 getForm.head = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -105,26 +105,26 @@ getForm.head = (args: { user: number | { id: number } } | [user: number | { id: 
 get.form = getForm
 
 /**
-* @see \App\Http\Controllers\UserController::update
-* @see app/Http/Controllers/UserController.php:294
+* @see \App\Http\Controllers\UserController::sync
+* @see app/Http/Controllers/UserController.php:303
 * @route '/users/{user}/permissions'
 */
-export const update = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: update.url(args, options),
+export const sync = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: sync.url(args, options),
     method: 'post',
 })
 
-update.definition = {
+sync.definition = {
     methods: ["post"],
     url: '/users/{user}/permissions',
 } satisfies RouteDefinition<["post"]>
 
 /**
-* @see \App\Http\Controllers\UserController::update
-* @see app/Http/Controllers/UserController.php:294
+* @see \App\Http\Controllers\UserController::sync
+* @see app/Http/Controllers/UserController.php:303
 * @route '/users/{user}/permissions'
 */
-update.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+sync.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { user: args }
     }
@@ -147,46 +147,46 @@ update.url = (args: { user: number | { id: number } } | [user: number | { id: nu
         : args.user,
     }
 
-    return update.definition.url
+    return sync.definition.url
             .replace('{user}', parsedArgs.user.toString())
             .replace(/\/+$/, '') + queryParams(options)
 }
 
 /**
-* @see \App\Http\Controllers\UserController::update
-* @see app/Http/Controllers/UserController.php:294
+* @see \App\Http\Controllers\UserController::sync
+* @see app/Http/Controllers/UserController.php:303
 * @route '/users/{user}/permissions'
 */
-update.post = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: update.url(args, options),
+sync.post = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: sync.url(args, options),
     method: 'post',
 })
 
 /**
-* @see \App\Http\Controllers\UserController::update
-* @see app/Http/Controllers/UserController.php:294
+* @see \App\Http\Controllers\UserController::sync
+* @see app/Http/Controllers/UserController.php:303
 * @route '/users/{user}/permissions'
 */
-const updateForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, options),
+const syncForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: sync.url(args, options),
     method: 'post',
 })
 
 /**
-* @see \App\Http\Controllers\UserController::update
-* @see app/Http/Controllers/UserController.php:294
+* @see \App\Http\Controllers\UserController::sync
+* @see app/Http/Controllers/UserController.php:303
 * @route '/users/{user}/permissions'
 */
-updateForm.post = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, options),
+syncForm.post = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: sync.url(args, options),
     method: 'post',
 })
 
-update.form = updateForm
+sync.form = syncForm
 
 const permissions = {
     get: Object.assign(get, get),
-    update: Object.assign(update, update),
+    sync: Object.assign(sync, sync),
 }
 
 export default permissions

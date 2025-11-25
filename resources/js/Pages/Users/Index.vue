@@ -56,7 +56,7 @@ const getDefaultUserForm = (): UserFormData => ({
     name: '',
     email: '',
     active: true,
-    expires_at: '',
+    expires_at: new Date().toISOString().split('T')[0], // Default to today's date
     require_2fa: false,
     role: 'user',
 });
@@ -116,10 +116,7 @@ const updateUser = (): void => {
     }
 
     const url = `/users/${editingUser.value.id}`;
-    const data = {
-        ...getUserFormData(editUser.value),
-        _method: 'PUT'
-    };
+    const data = getUserFormData(editUser.value);
 
     console.log('🔍 Updating user:', {
         url,
@@ -127,7 +124,7 @@ const updateUser = (): void => {
         data
     });
 
-    router.post(url, data, {
+    router.put(url, data, {
         preserveState: false,
         onSuccess: () => {
             console.log('✅ User updated successfully');
@@ -255,6 +252,7 @@ const changePage = (url: string | null): void => {
 const exportUsers = (format: 'csv' | 'xlsx'): void => {
     const params = new URLSearchParams({
         format,
+        sync: '1',  // Request synchronous download
         ...filters.value as any,
     });
 

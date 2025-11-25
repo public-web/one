@@ -180,7 +180,7 @@ const deletePermission = (permissionId: number, permissionName: string): void =>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 bg-white">
-                                <tr v-for="permission in permissions" :key="permission.id" class="hover:bg-gray-50/50 transition-colors">
+                                <tr v-for="permission in props.permissions" :key="permission.id" class="hover:bg-gray-50/50 transition-colors">
                                     <!-- Permission Name -->
                                     <td class="px-4 py-4">
                                         <div class="flex items-center gap-3">
@@ -250,7 +250,7 @@ const deletePermission = (permissionId: number, permissionName: string): void =>
                                         </div>
                                     </td>
                                 </tr>
-                                <tr v-if="permissions.length === 0">
+                                <tr v-if="props.permissions.length === 0">
                                     <td colspan="6" class="px-4 py-12 text-center text-gray-500">
                                         <div class="flex flex-col items-center gap-2">
                                             <span class="text-3xl">🔑</span>

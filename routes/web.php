@@ -29,22 +29,27 @@ Route::middleware(['auth', 'verified', CheckPasswordChanged::class])->group(func
         Route::match(['delete', 'post'], '/{user}', [UserController::class, 'destroy'])->name('destroy')->withTrashed();
         Route::post('/{id}/restore', [UserController::class, 'restore'])->name('restore');
         Route::delete('/{id}/force', [UserController::class, 'forceDelete'])->name('force-delete');
-        Route::get('/{id}/activity-logs', [UserController::class, 'activityLogs'])->name('activity-logs');
+        Route::get('/{user}/activity-logs', [UserController::class, 'activityLogs'])->name('activity-logs')->withTrashed();
 
         // Permissions management
         Route::get('/{user}/permissions', [UserController::class, 'getPermissions'])->name('permissions.get');
-        Route::post('/{user}/permissions', [UserController::class, 'updatePermissions'])->name('permissions.update');
+        Route::post('/{user}/permissions', [UserController::class, 'syncDirectPermissions'])->name('permissions.sync');
 
         // Import/Export
         Route::get('/export', [UserController::class, 'export'])->name('export');
         Route::get('/import/template', [UserController::class, 'downloadTemplate'])->name('import.template');
         Route::post('/import', [UserController::class, 'import'])->name('import');
+        Route::get('/import-export-history', [UserController::class, 'importExportHistory'])->name('import-export.history');
+        Route::delete('/operations/{id}', [UserController::class, 'archiveOperation'])->name('operations.archive');
+        Route::post('/operations/{id}/restore', [UserController::class, 'restoreOperation'])->name('operations.restore');
+        Route::delete('/operations/{id}/force', [UserController::class, 'forceDeleteOperation'])->name('operations.force-delete');
     });
 
     // Roles management
     Route::prefix('roles')->name('roles.')->group(function () {
         Route::get('/', [RoleController::class, 'index'])->name('index');
         Route::post('/', [RoleController::class, 'store'])->name('store');
+        Route::post('/delete-many', [RoleController::class, 'destroyMany'])->name('destroy-many');
         Route::get('/{role}', [RoleController::class, 'show'])->name('show');
         Route::match(['put', 'post'], '/{role}', [RoleController::class, 'update'])->name('update');
         Route::match(['delete', 'post'], '/{role}/delete', [RoleController::class, 'destroy'])->name('destroy');
@@ -55,6 +60,7 @@ Route::middleware(['auth', 'verified', CheckPasswordChanged::class])->group(func
     Route::prefix('permissions')->name('permissions.')->group(function () {
         Route::get('/', [PermissionController::class, 'index'])->name('index');
         Route::post('/', [PermissionController::class, 'store'])->name('store');
+        Route::post('/delete-many', [PermissionController::class, 'destroyMany'])->name('destroy-many');
         Route::get('/{permission}', [PermissionController::class, 'show'])->name('show');
         Route::match(['put', 'post'], '/{permission}', [PermissionController::class, 'update'])->name('update');
         Route::match(['delete', 'post'], '/{permission}/delete', [PermissionController::class, 'destroy'])->name('destroy');
@@ -62,6 +68,11 @@ Route::middleware(['auth', 'verified', CheckPasswordChanged::class])->group(func
 
     // Future modules can be added here:
     // Route::prefix('contracts')->name('contracts.')->group(function () { ... });
+});
+
+// Artículos (para testing) - Solo requiere auth y verified (sin CheckPasswordChanged)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::resource('articulos', \App\Http\Controllers\ArticuloController::class);
 });
 
 require __DIR__.'/settings.php';

@@ -12,10 +12,22 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 class UsersExport implements FromQuery, WithHeadings, WithMapping, WithStyles
 {
     protected $filters;
+    protected $rowCount = null;
 
     public function __construct($filters = [])
     {
         $this->filters = $filters;
+    }
+
+    /**
+     * Get the row count of the export
+     */
+    public function getRowCount(): int
+    {
+        if ($this->rowCount === null) {
+            $this->rowCount = $this->query()->count();
+        }
+        return $this->rowCount;
     }
 
     public function query()

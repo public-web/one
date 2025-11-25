@@ -129,42 +129,52 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if the user has any of the given permissions
-     */
-    public function hasAnyPermission(array $permissions): bool
-    {
-        foreach ($permissions as $permission) {
-            if ($this->can($permission)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Check if the user has all of the given permissions
-     */
-    public function hasAllPermissions(array $permissions): bool
-    {
-        foreach ($permissions as $permission) {
-            if (! $this->can($permission)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
      * Get the user's primary role name
+     *
+     * Note: Uses eager-loaded roles if available to avoid N+1 queries.
+     * When using in loops, ensure roles are eager-loaded: User::with('roles')->get()
      */
     public function getPrimaryRole(): ?string
     {
+        // Use relationLoaded to optimize: if not loaded, load only what we need
+        if (!$this->relationLoaded('roles')) {
+            return $this->roles()->value('name');
+        }
+
         /** @var \Spatie\Permission\Models\Role|null $role */
         $role = $this->roles->first();
 
         return $role?->name;
+    }
+
+    /**
+     * Enable two-factor authentication for the user
+     */
+    public function enableTwoFactor(): void
+    {
+        $secret = app(\Laravel\Fortify\TwoFactorAuthenticationProvider::class)->generateSecretKey();
+
+        $this->forceFill([
+            'two_factor_secret' => encrypt($secret),
+            'two_factor_recovery_codes' => encrypt(json_encode(
+                collect(range(1, 8))->map(function () {
+                    return \Illuminate\Support\Str::random(10) . '-' . \Illuminate\Support\Str::random(10);
+                })->toArray()
+            )),
+            'two_factor_confirmed_at' => now(),
+        ])->save();
+    }
+
+    /**
+     * Disable two-factor authentication for the user
+     */
+    public function disableTwoFactor(): void
+    {
+        $this->forceFill([
+            'two_factor_secret' => null,
+            'two_factor_recovery_codes' => null,
+            'two_factor_confirmed_at' => null,
+        ])->save();
     }
 
     /**
@@ -202,6 +212,121 @@ class User extends Authenticatable
         return $query->whereHas('roles', function ($q) use ($role) {
             $q->where('name', $role);
         });
+    }
+
+    /**
+     * Scope to search users by name or email
+     */
+    public function scopeSearch($query, ?string $search)
+    {
+        if (empty($search)) {
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%");
+        });
+    }
+
+    /**
+     * Scope to filter users by role (alias for withRole for consistency)
+     */
+    public function scopeByRole($query, ?string $role)
+    {
+        if (empty($role)) {
+            return $query;
+        }
+
+        return $query->withRole($role);
+    }
+
+    /**
+     * Scope to filter users by status (active, inactive, deleted)
+     */
+    public function scopeByStatus($query, ?string $status)
+    {
+        return match($status) {
+            'active' => $query->where('active', true)->whereNull('deleted_at'),
+            'inactive' => $query->where('active', false)->whereNull('deleted_at'),
+            'deleted' => $query->onlyTrashed(),
+            default => $query
+        };
+    }
+
+    /**
+     * Scope to filter users by expiration status
+     */
+    public function scopeExpiring($query, ?string $expiring)
+    {
+        return match($expiring) {
+            'soon' => $query->whereBetween('expires_at', [now(), now()->addDays(30)]),
+            'expired' => $query->where('expires_at', '<', now()),
+            default => $query
+        };
+    }
+
+    /**
+     * Get import/export operations initiated by this user
+     */
+    public function importExports()
+    {
+        return $this->hasMany(\App\Models\UserImportExport::class);
+    }
+
+    /**
+     * Get only import operations
+     */
+    public function imports()
+    {
+        return $this->importExports()->where('type', \App\Enums\ImportExportType::Import);
+    }
+
+    /**
+     * Get only export operations
+     */
+    public function exports()
+    {
+        return $this->importExports()->where('type', \App\Enums\ImportExportType::Export);
+    }
+
+    /**
+     * Get recent import/export operations (last 30 days)
+     */
+    public function recentImportExports(int $days = 30)
+    {
+        return $this->importExports()
+            ->where('created_at', '>=', now()->subDays($days))
+            ->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Get import/export statistics for this user
+     *
+     * Uses SQL COUNT() queries for efficiency - does not load records into memory.
+     * Much more efficient than loading all records when user has many operations.
+     *
+     * @return array{total: int, imports: int, exports: int, completed: int, failed: int, pending: int, processing: int}
+     */
+    public function getImportExportStats(): array
+    {
+        return [
+            'total' => $this->importExports()->count(),
+            'imports' => $this->imports()->count(),
+            'exports' => $this->exports()->count(),
+            'completed' => $this->importExports()->where('status', \App\Enums\ImportExportStatus::Completed)->count(),
+            'failed' => $this->importExports()->where('status', \App\Enums\ImportExportStatus::Failed)->count(),
+            'pending' => $this->importExports()->where('status', \App\Enums\ImportExportStatus::Pending)->count(),
+            'processing' => $this->importExports()->where('status', \App\Enums\ImportExportStatus::Processing)->count(),
+        ];
+    }
+
+    /**
+     * Get artículos created by this user
+     */
+    public function articulos()
+    {
+        return $this->hasMany(Articulo::class);
     }
 
     /**

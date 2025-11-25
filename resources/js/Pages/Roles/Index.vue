@@ -93,7 +93,7 @@ const updateRole = (): void => {
 
     formErrors.value = {};
 
-    router.post(`/roles/${editingRole.value.id}`, editRole.value, {
+    router.put(`/roles/${editingRole.value.id}`, editRole.value, {
         preserveState: false,
         onSuccess: () => {
             isEditModalOpen.value = false;
@@ -222,7 +222,7 @@ const toggleEditRolePermission = (permissionName: string): void => {
                                 <label class="text-sm font-medium mb-3 block">Permissions</label>
                                 <div class="space-y-2 max-h-[300px] overflow-y-auto border rounded-md p-3">
                                     <div
-                                        v-for="permission in permissions"
+                                        v-for="permission in props.permissions"
                                         :key="permission.id"
                                         class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
                                         @click="toggleNewRolePermission(permission.name)"
@@ -265,7 +265,7 @@ const toggleEditRolePermission = (permissionName: string): void => {
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 bg-white">
-                                <tr v-for="role in roles" :key="role.id" class="hover:bg-gray-50/50 transition-colors">
+                                <tr v-for="role in props.roles" :key="role.id" class="hover:bg-gray-50/50 transition-colors">
                                     <!-- Role Name -->
                                     <td class="px-4 py-4">
                                         <div class="flex items-center gap-3">
@@ -363,7 +363,7 @@ const toggleEditRolePermission = (permissionName: string): void => {
                             <label class="text-sm font-medium mb-3 block">Permissions</label>
                             <div class="space-y-2 max-h-[300px] overflow-y-auto border rounded-md p-3">
                                 <div
-                                    v-for="permission in permissions"
+                                    v-for="permission in props.permissions"
                                     :key="permission.id"
                                     class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
                                     @click="toggleEditRolePermission(permission.name)"
@@ -408,7 +408,7 @@ const toggleEditRolePermission = (permissionName: string): void => {
 
                         <div class="space-y-2 max-h-[400px] overflow-y-auto border rounded-md p-3">
                             <div
-                                v-for="permission in permissions"
+                                v-for="permission in props.permissions"
                                 :key="permission.id"
                                 class="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded cursor-pointer border border-transparent hover:border-gray-200 transition-colors"
                                 @click="togglePermission(permission.name)"

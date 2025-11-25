@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\PasswordChangeController::show
-* @see app/Http/Controllers/PasswordChangeController.php:17
+* @see app/Http/Controllers/PasswordChangeController.php:26
 * @route '/password/change'
 */
 export const show = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\PasswordChangeController::show
-* @see app/Http/Controllers/PasswordChangeController.php:17
+* @see app/Http/Controllers/PasswordChangeController.php:26
 * @route '/password/change'
 */
 show.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ show.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PasswordChangeController::show
-* @see app/Http/Controllers/PasswordChangeController.php:17
+* @see app/Http/Controllers/PasswordChangeController.php:26
 * @route '/password/change'
 */
 show.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ show.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\PasswordChangeController::show
-* @see app/Http/Controllers/PasswordChangeController.php:17
+* @see app/Http/Controllers/PasswordChangeController.php:26
 * @route '/password/change'
 */
 show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\PasswordChangeController::show
-* @see app/Http/Controllers/PasswordChangeController.php:17
+* @see app/Http/Controllers/PasswordChangeController.php:26
 * @route '/password/change'
 */
 const showForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const showForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\PasswordChangeController::show
-* @see app/Http/Controllers/PasswordChangeController.php:17
+* @see app/Http/Controllers/PasswordChangeController.php:26
 * @route '/password/change'
 */
 showForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ showForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\PasswordChangeController::show
-* @see app/Http/Controllers/PasswordChangeController.php:17
+* @see app/Http/Controllers/PasswordChangeController.php:26
 * @route '/password/change'
 */
 showForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ show.form = showForm
 
 /**
 * @see \App\Http\Controllers\PasswordChangeController::update
-* @see app/Http/Controllers/PasswordChangeController.php:27
+* @see app/Http/Controllers/PasswordChangeController.php:45
 * @route '/password/change'
 */
 export const update = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -97,7 +97,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\PasswordChangeController::update
-* @see app/Http/Controllers/PasswordChangeController.php:27
+* @see app/Http/Controllers/PasswordChangeController.php:45
 * @route '/password/change'
 */
 update.url = (options?: RouteQueryOptions) => {
@@ -106,7 +106,7 @@ update.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PasswordChangeController::update
-* @see app/Http/Controllers/PasswordChangeController.php:27
+* @see app/Http/Controllers/PasswordChangeController.php:45
 * @route '/password/change'
 */
 update.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -116,7 +116,7 @@ update.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\PasswordChangeController::update
-* @see app/Http/Controllers/PasswordChangeController.php:27
+* @see app/Http/Controllers/PasswordChangeController.php:45
 * @route '/password/change'
 */
 const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -126,7 +126,7 @@ const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> =>
 
 /**
 * @see \App\Http\Controllers\PasswordChangeController::update
-* @see app/Http/Controllers/PasswordChangeController.php:27
+* @see app/Http/Controllers/PasswordChangeController.php:45
 * @route '/password/change'
 */
 updateForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
