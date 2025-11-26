@@ -420,7 +420,7 @@ edit.form = editForm
 * @see app/Http/Controllers/ArticuloController.php:28
 * @route '/articulos/{articulo}'
 */
-export const update = (args: { articulo: string | number | { id: string | number } } | [articulo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+export const update = (args: { articulo: number | { id: number } } | [articulo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(args, options),
     method: 'put',
 })
@@ -435,7 +435,7 @@ update.definition = {
 * @see app/Http/Controllers/ArticuloController.php:28
 * @route '/articulos/{articulo}'
 */
-update.url = (args: { articulo: string | number | { id: string | number } } | [articulo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+update.url = (args: { articulo: number | { id: number } } | [articulo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { articulo: args }
     }
@@ -468,7 +468,7 @@ update.url = (args: { articulo: string | number | { id: string | number } } | [a
 * @see app/Http/Controllers/ArticuloController.php:28
 * @route '/articulos/{articulo}'
 */
-update.put = (args: { articulo: string | number | { id: string | number } } | [articulo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+update.put = (args: { articulo: number | { id: number } } | [articulo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(args, options),
     method: 'put',
 })
@@ -478,7 +478,7 @@ update.put = (args: { articulo: string | number | { id: string | number } } | [a
 * @see app/Http/Controllers/ArticuloController.php:28
 * @route '/articulos/{articulo}'
 */
-update.patch = (args: { articulo: string | number | { id: string | number } } | [articulo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+update.patch = (args: { articulo: number | { id: number } } | [articulo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     url: update.url(args, options),
     method: 'patch',
 })
@@ -488,7 +488,7 @@ update.patch = (args: { articulo: string | number | { id: string | number } } | 
 * @see app/Http/Controllers/ArticuloController.php:28
 * @route '/articulos/{articulo}'
 */
-const updateForm = (args: { articulo: string | number | { id: string | number } } | [articulo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+const updateForm = (args: { articulo: number | { id: number } } | [articulo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: update.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'PUT',
@@ -503,7 +503,7 @@ const updateForm = (args: { articulo: string | number | { id: string | number } 
 * @see app/Http/Controllers/ArticuloController.php:28
 * @route '/articulos/{articulo}'
 */
-updateForm.put = (args: { articulo: string | number | { id: string | number } } | [articulo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+updateForm.put = (args: { articulo: number | { id: number } } | [articulo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: update.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'PUT',
@@ -518,7 +518,7 @@ updateForm.put = (args: { articulo: string | number | { id: string | number } } 
 * @see app/Http/Controllers/ArticuloController.php:28
 * @route '/articulos/{articulo}'
 */
-updateForm.patch = (args: { articulo: string | number | { id: string | number } } | [articulo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+updateForm.patch = (args: { articulo: number | { id: number } } | [articulo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: update.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'PATCH',
@@ -535,7 +535,7 @@ update.form = updateForm
 * @see app/Http/Controllers/ArticuloController.php:45
 * @route '/articulos/{articulo}'
 */
-export const destroy = (args: { articulo: string | number | { id: string | number } } | [articulo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+export const destroy = (args: { articulo: number | { id: number } } | [articulo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -550,7 +550,7 @@ destroy.definition = {
 * @see app/Http/Controllers/ArticuloController.php:45
 * @route '/articulos/{articulo}'
 */
-destroy.url = (args: { articulo: string | number | { id: string | number } } | [articulo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+destroy.url = (args: { articulo: number | { id: number } } | [articulo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { articulo: args }
     }
@@ -583,7 +583,7 @@ destroy.url = (args: { articulo: string | number | { id: string | number } } | [
 * @see app/Http/Controllers/ArticuloController.php:45
 * @route '/articulos/{articulo}'
 */
-destroy.delete = (args: { articulo: string | number | { id: string | number } } | [articulo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+destroy.delete = (args: { articulo: number | { id: number } } | [articulo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -593,7 +593,7 @@ destroy.delete = (args: { articulo: string | number | { id: string | number } } 
 * @see app/Http/Controllers/ArticuloController.php:45
 * @route '/articulos/{articulo}'
 */
-const destroyForm = (args: { articulo: string | number | { id: string | number } } | [articulo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+const destroyForm = (args: { articulo: number | { id: number } } | [articulo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: destroy.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'DELETE',
@@ -608,7 +608,7 @@ const destroyForm = (args: { articulo: string | number | { id: string | number }
 * @see app/Http/Controllers/ArticuloController.php:45
 * @route '/articulos/{articulo}'
 */
-destroyForm.delete = (args: { articulo: string | number | { id: string | number } } | [articulo: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+destroyForm.delete = (args: { articulo: number | { id: number } } | [articulo: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: destroy.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'DELETE',

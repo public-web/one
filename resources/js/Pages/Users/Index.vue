@@ -96,11 +96,6 @@ const createUser = (): void => {
             formErrors.value = {};
             isCreateModalOpen.value = false;
             resetUserForm(newUser);
-            // Force reload to get fresh data
-            router.visit('/users', {
-                preserveState: false,
-                preserveScroll: false,
-            });
         },
         onError: (errors: InertiaErrors) => {
             console.error('❌ Error creating user:', errors);

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\UserController::archive
-* @see app/Http/Controllers/UserController.php:485
+* @see app/Http/Controllers/UserController.php:482
 * @route '/users/operations/{id}'
 */
 export const archive = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -16,7 +16,7 @@ archive.definition = {
 
 /**
 * @see \App\Http\Controllers\UserController::archive
-* @see app/Http/Controllers/UserController.php:485
+* @see app/Http/Controllers/UserController.php:482
 * @route '/users/operations/{id}'
 */
 archive.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -43,7 +43,7 @@ archive.url = (args: { id: string | number } | [id: string | number ] | string |
 
 /**
 * @see \App\Http\Controllers\UserController::archive
-* @see app/Http/Controllers/UserController.php:485
+* @see app/Http/Controllers/UserController.php:482
 * @route '/users/operations/{id}'
 */
 archive.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -53,7 +53,7 @@ archive.delete = (args: { id: string | number } | [id: string | number ] | strin
 
 /**
 * @see \App\Http\Controllers\UserController::archive
-* @see app/Http/Controllers/UserController.php:485
+* @see app/Http/Controllers/UserController.php:482
 * @route '/users/operations/{id}'
 */
 const archiveForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -68,7 +68,7 @@ const archiveForm = (args: { id: string | number } | [id: string | number ] | st
 
 /**
 * @see \App\Http\Controllers\UserController::archive
-* @see app/Http/Controllers/UserController.php:485
+* @see app/Http/Controllers/UserController.php:482
 * @route '/users/operations/{id}'
 */
 archiveForm.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -85,7 +85,7 @@ archive.form = archiveForm
 
 /**
 * @see \App\Http\Controllers\UserController::restore
-* @see app/Http/Controllers/UserController.php:503
+* @see app/Http/Controllers/UserController.php:500
 * @route '/users/operations/{id}/restore'
 */
 export const restore = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -100,7 +100,7 @@ restore.definition = {
 
 /**
 * @see \App\Http\Controllers\UserController::restore
-* @see app/Http/Controllers/UserController.php:503
+* @see app/Http/Controllers/UserController.php:500
 * @route '/users/operations/{id}/restore'
 */
 restore.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -127,7 +127,7 @@ restore.url = (args: { id: string | number } | [id: string | number ] | string |
 
 /**
 * @see \App\Http\Controllers\UserController::restore
-* @see app/Http/Controllers/UserController.php:503
+* @see app/Http/Controllers/UserController.php:500
 * @route '/users/operations/{id}/restore'
 */
 restore.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -137,7 +137,7 @@ restore.post = (args: { id: string | number } | [id: string | number ] | string 
 
 /**
 * @see \App\Http\Controllers\UserController::restore
-* @see app/Http/Controllers/UserController.php:503
+* @see app/Http/Controllers/UserController.php:500
 * @route '/users/operations/{id}/restore'
 */
 const restoreForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -147,7 +147,7 @@ const restoreForm = (args: { id: string | number } | [id: string | number ] | st
 
 /**
 * @see \App\Http\Controllers\UserController::restore
-* @see app/Http/Controllers/UserController.php:503
+* @see app/Http/Controllers/UserController.php:500
 * @route '/users/operations/{id}/restore'
 */
 restoreForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -159,7 +159,7 @@ restore.form = restoreForm
 
 /**
 * @see \App\Http\Controllers\UserController::forceDelete
-* @see app/Http/Controllers/UserController.php:524
+* @see app/Http/Controllers/UserController.php:521
 * @route '/users/operations/{id}/force'
 */
 export const forceDelete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -174,7 +174,7 @@ forceDelete.definition = {
 
 /**
 * @see \App\Http\Controllers\UserController::forceDelete
-* @see app/Http/Controllers/UserController.php:524
+* @see app/Http/Controllers/UserController.php:521
 * @route '/users/operations/{id}/force'
 */
 forceDelete.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -201,7 +201,7 @@ forceDelete.url = (args: { id: string | number } | [id: string | number ] | stri
 
 /**
 * @see \App\Http\Controllers\UserController::forceDelete
-* @see app/Http/Controllers/UserController.php:524
+* @see app/Http/Controllers/UserController.php:521
 * @route '/users/operations/{id}/force'
 */
 forceDelete.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -211,7 +211,7 @@ forceDelete.delete = (args: { id: string | number } | [id: string | number ] | s
 
 /**
 * @see \App\Http\Controllers\UserController::forceDelete
-* @see app/Http/Controllers/UserController.php:524
+* @see app/Http/Controllers/UserController.php:521
 * @route '/users/operations/{id}/force'
 */
 const forceDeleteForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -226,7 +226,7 @@ const forceDeleteForm = (args: { id: string | number } | [id: string | number ] 
 
 /**
 * @see \App\Http\Controllers\UserController::forceDelete
-* @see app/Http/Controllers/UserController.php:524
+* @see app/Http/Controllers/UserController.php:521
 * @route '/users/operations/{id}/force'
 */
 forceDeleteForm.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

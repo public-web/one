@@ -20,6 +20,7 @@ export interface User {
     require_2fa: boolean;
     roles: UserRole[];
     deleted_at?: string | null;
+    avatar?: string | null;
 }
 
 export interface UserFormData {
@@ -29,6 +30,7 @@ export interface UserFormData {
     expires_at: string;
     require_2fa: boolean;
     role: string;
+    avatar?: File | null;
 }
 
 export interface UserSubmitData extends Record<string, any> {
@@ -38,6 +40,7 @@ export interface UserSubmitData extends Record<string, any> {
     expires_at: string | null;
     require_2fa: boolean;
     role: string;
+    avatar?: File | null;
 }
 
 /**

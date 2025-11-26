@@ -78,13 +78,10 @@ class UserController extends Controller
         ]);
 
         try {
-            $this->userService->createUser($request->validated());
+            $user = $this->userService->createUser($request->validated());
 
-            return redirect()->route('users.index')
-                ->with([
-                    'success' => 'Usuario creado exitosamente',
-                    'refresh' => true,  // Signal frontend to refresh data
-                ]);
+            return redirect('/users')
+                ->with('success', "Usuario '{$user->name}' creado exitosamente");
         } catch (\Throwable $e) {
             return $this->handleServiceError($e);
         }

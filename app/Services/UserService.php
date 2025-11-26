@@ -35,6 +35,9 @@ class UserService
                 'active' => $data['active'] ?? true,
                 'expires_at' => $data['expires_at'] ?? null,
                 'require_2fa' => $data['require_2fa'] ?? false,
+                'avatar' => isset($data['avatar']) && $data['avatar'] instanceof \Illuminate\Http\UploadedFile
+                    ? $data['avatar']->store('avatars', 'public')
+                    : null,
             ]);
 
             // Assign role
@@ -83,6 +86,15 @@ class UserService
                 'expires_at' => $data['expires_at'] ?? null,
                 'require_2fa' => $data['require_2fa'] ?? false,
             ]);
+
+            // Handle avatar upload
+            if (isset($data['avatar']) && $data['avatar'] instanceof \Illuminate\Http\UploadedFile) {
+                if ($user->avatar) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar);
+                }
+                $user->update(['avatar' => $data['avatar']->store('avatars', 'public')]);
+                $changes['avatar'] = ['old' => 'previous_image', 'new' => 'new_image'];
+            }
 
             // Handle 2FA changes
             $this->twoFactorService->toggle($user, $data['require_2fa'] ?? false);

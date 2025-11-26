@@ -31,9 +31,10 @@ class UpdateUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($userId)],
             'active' => ['boolean'],
-            'expires_at' => ['nullable', 'date', 'after:today'],
+            'expires_at' => ['nullable', 'date', 'after_or_equal:today'],
             'require_2fa' => ['boolean'],
             'role' => ['required', 'string', Rule::in(\Spatie\Permission\Models\Role::pluck('name')->toArray())],
+            'avatar' => ['nullable', 'image', 'max:2048'],
         ];
     }
 
@@ -50,7 +51,7 @@ class UpdateUserRequest extends FormRequest
             'email.required' => 'El email es obligatorio.',
             'email.email' => 'El email debe ser una dirección válida.',
             'email.unique' => 'Este email ya está registrado por otro usuario.',
-            'expires_at.after' => 'La fecha de expiración debe ser posterior a hoy.',
+            'expires_at.after_or_equal' => 'La fecha de expiración debe ser hoy o una fecha futura.',
             'role.required' => 'Debe asignar un rol al usuario.',
             'role.in' => 'El rol seleccionado no es válido.',
         ];
