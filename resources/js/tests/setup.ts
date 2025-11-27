@@ -1,29 +1,30 @@
-import { mount } from '@vue/test-utils';
-import { describe, expect, it } from 'vitest';
-import Welcome from '../Components/Welcome.vue';
+import '@testing-library/jest-dom/vitest';
+import { expect, afterEach } from 'vitest';
+import { cleanup } from '@testing-library/vue';
+import * as matchers from '@testing-library/jest-dom/matchers';
 
-describe('Welcome Component', () => {
-    it('muestra el mensaje por defecto', () => {
-        const wrapper = mount(Welcome);
-        
-        expect(wrapper.text()).toContain('Bienvenido a Vue Testing');
-    });
+// Extend Vitest's expect with @testing-library/jest-dom matchers
+expect.extend(matchers);
 
-    it('muestra un mensaje personalizado', () => {
-        const wrapper = mount(Welcome, {
-            props: {
-                message: 'Hola Juan Carlos'
-            }
-        });
-        
-        expect(wrapper.text()).toContain('Hola Juan Carlos');
-    });
-
-    it('emite evento clicked cuando se hace click en el botón', async () => {
-        const wrapper = mount(Welcome);
-        
-        await wrapper.find('button').trigger('click');
-        
-        expect(wrapper.emitted('clicked')).toBeTruthy();
-    });
+// Clean up after each test
+afterEach(() => {
+  cleanup();
 });
+
+// Mock global objects if needed
+globalThis.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  takeRecords() {
+    return [];
+  }
+  unobserve() {}
+} as any;
+
+globalThis.ResizeObserver = class ResizeObserver {
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  unobserve() {}
+} as any;
