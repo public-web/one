@@ -9,7 +9,7 @@ class Role extends SpatieRole
     /**
      * System roles that cannot be deleted or renamed
      */
-    public const SYSTEM_ROLES = ['superadmin', 'admin', 'user'];
+    public const SYSTEM_ROLES = ['superadmin', 'user'];
 
     /**
      * Check if this role is a system role

@@ -10,7 +10,7 @@ import { index as rolesIndex } from '@/routes/roles';
 import { index as permissionsIndex } from '@/routes/permissions';
 import { type NavItem } from '@/types';
 import { Link, usePage, router } from '@inertiajs/vue3';
-import { LayoutGrid, UsersRound, Activity, Shield, Key } from 'lucide-vue-next';
+import { LayoutGrid, UsersRound, Activity, Shield, Key, FolderKanban, ClipboardCheck } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
@@ -22,19 +22,66 @@ const isSuperAdmin = computed(() => {
     return user?.roles?.some((role: any) => role.name === 'superadmin') ?? false;
 });
 
+// Check if current user can manage banco de proyectos (but not superadmin)
+const canManageBancoProyectos = computed(() => {
+    const user = page.props.auth?.user as any;
+    const isSuperAdmin = user?.roles?.some((role: any) => role.name === 'superadmin') ?? false;
+    const hasBancoRole = user?.roles?.some((role: any) => role.name === 'banco-proyectos') ?? false;
+    return !isSuperAdmin && hasBancoRole;
+});
+
+// Check if current user has previabilizacion-social role (but not superadmin)
+const hasPreviabilizacionSocialRole = computed(() => {
+    const user = page.props.auth?.user as any;
+    const isSuperAdmin = user?.roles?.some((role: any) => role.name === 'superadmin') ?? false;
+    const hasPreviabilizacionRole = user?.roles?.some((role: any) => role.name === 'previabilizacion-social') ?? false;
+    return !isSuperAdmin && hasPreviabilizacionRole;
+});
+
 const mainNavItems = computed<NavItem[]>(() => {
-    const items: NavItem[] = [
-        {
+    const items: NavItem[] = [];
+
+    // For previabilizacion-social role, show "Banco de Proyectos" instead of Dashboard
+    if (hasPreviabilizacionSocialRole.value) {
+        items.push({
+            title: 'Banco de Proyectos',
+            href: dashboard().url,
+            icon: FolderKanban,
+        });
+    } else {
+        items.push({
             title: 'Dashboard',
             href: dashboard().url,
             icon: LayoutGrid,
-        },
-        {
+        });
+    }
+
+    // Add Users for superadmins
+    if (isSuperAdmin.value) {
+        items.push({
             title: 'usuarios',
             href: usersIndex().url,
             icon: UsersRound,
-        },
-    ];
+        });
+    }
+
+    // Add Banco de Proyectos for users with banco-proyectos role or superadmin
+    if (canManageBancoProyectos.value) {
+        items.push({
+            title: 'Banco de Proyectos',
+            href: '/banco-proyectos',
+            icon: FolderKanban,
+        });
+    }
+
+    // Add Previabilización Social for users with previabilizacion-social role or superadmin
+    if (hasPreviabilizacionSocialRole.value) {
+        items.push({
+            title: 'Previabilización Social',
+            href: '/previabilizacion-social/dashboard',
+            icon: ClipboardCheck,
+        });
+    }
 
     // Add Roles, Permissions and Activity Logs only for superadmins
     if (isSuperAdmin.value) {

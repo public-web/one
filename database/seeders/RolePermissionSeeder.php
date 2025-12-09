@@ -47,24 +47,11 @@ class RolePermissionSeeder extends Seeder
 
         // Crear roles
         $superadminRole = Role::firstOrCreate(['name' => 'superadmin']);
-        $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $userRole = Role::firstOrCreate(['name' => 'user']);
 
         // Asignar permisos
         // Superadmin: todos los permisos
         $superadminRole->givePermissionTo($allPermissions);
-
-        // Admin: puede gestionar usuarios, roles y permisos (excepto eliminar)
-        $adminRole->givePermissionTo([
-            'users.list',
-            'users.create',
-            'users.edit',
-            'users.update-status',
-            'roles.list',
-            'roles.create',
-            'roles.edit',
-            'permissions.list',
-        ]);
 
         // User: solo puede ver listas (sin modificar)
         $userRole->givePermissionTo([

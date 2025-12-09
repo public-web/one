@@ -54,7 +54,7 @@ class UserImportExportService
             $headers = ['name', 'email', 'role', 'active', 'require_2fa', 'expires_at'];
             $sample = [
                 ['John Doe', 'john@example.com', 'user', 'true', 'false', '2026-12-31'],
-                ['Jane Smith', 'jane@example.com', 'admin', 'true', 'true', ''],
+                ['Jane Smith', 'jane@example.com', 'user', 'true', 'true', ''],
             ];
 
             $export = new class($headers, $sample) implements \Maatwebsite\Excel\Concerns\FromArray {

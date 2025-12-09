@@ -28,7 +28,7 @@ class RoleController extends Controller
     /**
      * System roles that cannot be deleted or renamed
      */
-    private const SYSTEM_ROLES = ['superadmin', 'admin', 'user'];
+    private const SYSTEM_ROLES = ['superadmin', 'user'];
 
     public function __construct(
         private RolePermissionCacheService $cacheService

@@ -39,7 +39,7 @@ class UsersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
 
             // Assign role
             $role = strtolower(trim($row['role'] ?? 'user'));
-            if (in_array($role, ['superadmin', 'admin', 'user'])) {
+            if (in_array($role, ['superadmin', 'user'])) {
                 $user->assignRole($role);
             } else {
                 $user->assignRole('user');
@@ -77,7 +77,7 @@ class UsersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
-            'role' => ['nullable', 'string', 'in:superadmin,admin,user'],
+            'role' => ['nullable', 'string', 'in:superadmin,user'],
             'active' => ['nullable'],
             'require_2fa' => ['nullable'],
             'expires_at' => ['nullable', 'date'],
@@ -91,7 +91,7 @@ class UsersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
             'email.required' => 'The email field is required.',
             'email.email' => 'The email must be a valid email address.',
             'email.unique' => 'This email is already registered.',
-            'role.in' => 'The role must be superadmin, admin, or user.',
+            'role.in' => 'The role must be superadmin or user.',
         ];
     }
 

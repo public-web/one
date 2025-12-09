@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Permission\Models\Role;
@@ -12,13 +13,15 @@ class DashboardController extends Controller
     /**
      * Handle the incoming request.
      */
-    public function __invoke(): Response
+    public function __invoke(): Response|RedirectResponse
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
         // Use the new helper method
         $canManageUsers = $user->isSuperAdmin();
+        $canManageBancoProyectos = $user->hasAnyRole(['superadmin', 'banco-proyectos']);
+        $canManagePreviabilizacion = $user->hasRole('previabilizacion-social') && !$user->hasRole('superadmin');
 
         $roles = [];
         $statistics = [];
@@ -74,6 +77,8 @@ class DashboardController extends Controller
 
         return Inertia::render('Dashboard', [
             'canManageUsers' => $canManageUsers,
+            'canManageBancoProyectos' => $canManageBancoProyectos,
+            'canManagePreviabilizacion' => $canManagePreviabilizacion,
             'availableRoles' => $roles,
             'statistics' => $statistics,
             'recentUsers' => $recentUsers,
