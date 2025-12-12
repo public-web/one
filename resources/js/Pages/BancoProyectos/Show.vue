@@ -57,7 +57,7 @@ interface PreviabilizacionSocial {
     codigo: string;
     fecha: string | null;
     priorizado_por: string | null;
-    juntas_accion_comunal: string | null;
+    tipo_previabilizacion: string | null;
     created_at: string;
     updated_at: string;
 }
@@ -278,14 +278,14 @@ const editingPreviabilizacion = ref<PreviabilizacionSocial | null>(null);
 const previabilizacionForm = ref({
     fecha: '',
     priorizado_por: '',
-    juntas_accion_comunal: '',
+    tipo_previabilizacion: '',
 });
 
 const resetPreviabilizacionForm = () => {
     previabilizacionForm.value = {
         fecha: '',
         priorizado_por: '',
-        juntas_accion_comunal: '',
+        tipo_previabilizacion: '',
     };
     editingPreviabilizacion.value = null;
 };
@@ -300,7 +300,7 @@ const openEditPreviabilizacionForm = (previabilizacion: PreviabilizacionSocial) 
     previabilizacionForm.value = {
         fecha: previabilizacion.fecha || '',
         priorizado_por: previabilizacion.priorizado_por || '',
-        juntas_accion_comunal: previabilizacion.juntas_accion_comunal || '',
+        tipo_previabilizacion: previabilizacion.tipo_previabilizacion || '',
     };
     showPreviabilizacionForm.value = true;
 };
@@ -819,10 +819,10 @@ const deletePreviabilizacion = (previabilizacionId: number) => {
                             </div>
 
                             <div class="space-y-2">
-                                <Label for="juntas_accion_comunal">Juntas Acción Comunal</Label>
+                                <Label for="tipo_previabilizacion">Tipo de Previabilización</Label>
                                 <Input
-                                    id="juntas_accion_comunal"
-                                    v-model="previabilizacionForm.juntas_accion_comunal"
+                                    id="tipo_previabilizacion"
+                                    v-model="previabilizacionForm.tipo_previabilizacion"
                                     type="text"
                                 />
                             </div>
@@ -845,7 +845,7 @@ const deletePreviabilizacion = (previabilizacionId: number) => {
                                 <tr class="bg-gray-50 border-b">
                                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Fecha</th>
                                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Priorizado Por</th>
-                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Juntas Acción Comunal</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Tipo de Previabilización</th>
                                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Acciones</th>
                                 </tr>
                             </thead>
@@ -857,7 +857,7 @@ const deletePreviabilizacion = (previabilizacionId: number) => {
                                 >
                                     <td class="px-4 py-3 text-sm">{{ formatDateShort(previabilizacion.fecha) }}</td>
                                     <td class="px-4 py-3 text-sm">{{ previabilizacion.priorizado_por || '-' }}</td>
-                                    <td class="px-4 py-3 text-sm">{{ previabilizacion.juntas_accion_comunal || '-' }}</td>
+                                    <td class="px-4 py-3 text-sm">{{ previabilizacion.tipo_previabilizacion || '-' }}</td>
                                     <td class="px-4 py-3 text-sm">
                                         <div class="flex gap-2">
                                             <Button

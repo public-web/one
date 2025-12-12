@@ -234,14 +234,14 @@ class BancoProyectoController extends Controller
         $validated = $request->validate([
             'fecha' => 'nullable|date',
             'priorizado_por' => 'nullable|string|max:255',
-            'juntas_accion_comunal' => 'nullable|string|max:255',
+            'tipo_previabilizacion' => 'nullable|string|max:255',
         ]);
 
         PreviabilizacionSocial::create([
             'codigo' => $proyecto->codigo_elemento,
             'fecha' => $validated['fecha'] ?? null,
             'priorizado_por' => $validated['priorizado_por'] ?? null,
-            'juntas_accion_comunal' => $validated['juntas_accion_comunal'] ?? null,
+            'tipo_previabilizacion' => $validated['tipo_previabilizacion'] ?? null,
         ]);
 
         return redirect()->route('banco-proyectos.show', $proyectoId)
@@ -263,13 +263,13 @@ class BancoProyectoController extends Controller
         $validated = $request->validate([
             'fecha' => 'nullable|date',
             'priorizado_por' => 'nullable|string|max:255',
-            'juntas_accion_comunal' => 'nullable|string|max:255',
+            'tipo_previabilizacion' => 'nullable|string|max:255',
         ]);
 
         $previabilizacion->update([
             'fecha' => $validated['fecha'] ?? null,
             'priorizado_por' => $validated['priorizado_por'] ?? null,
-            'juntas_accion_comunal' => $validated['juntas_accion_comunal'] ?? null,
+            'tipo_previabilizacion' => $validated['tipo_previabilizacion'] ?? null,
         ]);
 
         return redirect()->route('banco-proyectos.show', $proyectoId)

@@ -25,10 +25,10 @@ class PreviabilizacionSocialController extends Controller
                     ->groupBy('priorizado_por')
                     ->orderBy('total', 'desc')
                     ->get(),
-                'por_jac' => PreviabilizacionSocial::select('juntas_accion_comunal', DB::raw('count(*) as total'))
-                    ->whereNotNull('juntas_accion_comunal')
-                    ->where('juntas_accion_comunal', '!=', '')
-                    ->groupBy('juntas_accion_comunal')
+                'por_tipo' => PreviabilizacionSocial::select('tipo_previabilizacion', DB::raw('count(*) as total'))
+                    ->whereNotNull('tipo_previabilizacion')
+                    ->where('tipo_previabilizacion', '!=', '')
+                    ->groupBy('tipo_previabilizacion')
                     ->orderBy('total', 'desc')
                     ->get(),
                 'por_mes' => PreviabilizacionSocial::select(

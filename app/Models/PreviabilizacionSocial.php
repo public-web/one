@@ -14,7 +14,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
  * @property string $codigo
  * @property \Illuminate\Support\Carbon|null $fecha
  * @property string|null $priorizado_por
- * @property string|null $juntas_accion_comunal
+ * @property string|null $tipo_previabilizacion
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -40,7 +40,7 @@ class PreviabilizacionSocial extends Model
         'codigo',
         'fecha',
         'priorizado_por',
-        'juntas_accion_comunal',
+        'tipo_previabilizacion',
     ];
 
     /**
@@ -76,7 +76,7 @@ class PreviabilizacionSocial extends Model
                 'codigo',
                 'fecha',
                 'priorizado_por',
-                'juntas_accion_comunal',
+                'tipo_previabilizacion',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()

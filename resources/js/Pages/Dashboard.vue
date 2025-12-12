@@ -54,7 +54,7 @@ interface BancoProyectoStats {
 interface PreviabilizacionStats {
     total: number;
     por_priorizado: Array<{ priorizado_por: string; total: number }>;
-    por_jac: Array<{ juntas_accion_comunal: string; total: number }>;
+    por_tipo: Array<{ tipo_previabilizacion: string; total: number }>;
     por_mes: Array<{ mes: string; total: number }>;
     recientes: any[];
 }
@@ -181,11 +181,11 @@ const priorizadoChartData = computed(() => {
         .slice(0, 10); // Top 10
 });
 
-const jacChartData = computed(() => {
+const tipoChartData = computed(() => {
     if (!previabilizacionStats.value) return [];
-    return previabilizacionStats.value.por_jac
+    return previabilizacionStats.value.por_tipo
         .map(item => ({
-            label: item.juntas_accion_comunal || 'Sin JAC',
+            label: item.tipo_previabilizacion || 'Sin tipo',
             value: item.total
         }))
         .sort((a, b) => b.value - a.value);
@@ -604,15 +604,15 @@ onMounted(() => {
                         </CardContent>
                     </Card>
 
-                    <!-- JACs -->
+                    <!-- Tipos -->
                     <Card>
                         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle class="text-sm font-medium">Juntas de Acción Comunal</CardTitle>
+                            <CardTitle class="text-sm font-medium">Tipos de Previabilización</CardTitle>
                             <Activity class="h-4 w-4 text-green-600" />
                         </CardHeader>
                         <CardContent>
-                            <div class="text-2xl font-bold text-green-600">{{ previabilizacionStats.por_jac.length }}</div>
-                            <p class="text-xs text-muted-foreground">JACs registradas</p>
+                            <div class="text-2xl font-bold text-green-600">{{ previabilizacionStats.por_tipo.length }}</div>
+                            <p class="text-xs text-muted-foreground">Tipos registrados</p>
                         </CardContent>
                     </Card>
 
@@ -663,17 +663,17 @@ onMounted(() => {
                         </CardContent>
                     </Card>
 
-                    <!-- Distribución por JAC -->
+                    <!-- Distribución por Tipo -->
                     <Card class="col-span-3">
                         <CardHeader>
-                            <CardTitle>Distribución por JAC</CardTitle>
-                            <CardDescription>Juntas de Acción Comunal</CardDescription>
+                            <CardTitle>Distribución por Tipo</CardTitle>
+                            <CardDescription>Tipos de Previabilización</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div class="h-[300px]">
                                 <DoughnutChart
-                                    v-if="jacChartData.length > 0"
-                                    :data="jacChartData"
+                                    v-if="tipoChartData.length > 0"
+                                    :data="tipoChartData"
                                 />
                                 <div v-else class="flex items-center justify-center h-full text-muted-foreground">
                                     No hay datos disponibles
