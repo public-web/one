@@ -8,7 +8,7 @@ import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import type { PermissionData, PermissionFormData, PermissionsPageProps } from '@/types/permissions';
 import { Head, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps<PermissionsPageProps>();
 
@@ -39,6 +39,57 @@ const editPermission = ref<PermissionFormData>({
 
 // Form errors
 const formErrors = ref<Record<string, string>>({});
+
+// Filters
+const searchQuery = ref('');
+const rolesFilter = ref<'all' | 'with-roles' | 'without-roles'>('all');
+const usersFilter = ref<'all' | 'with-users' | 'without-users'>('all');
+const selectedRole = ref<string>('all');
+
+// Filtered permissions
+const filteredPermissions = computed(() => {
+    let filtered = props.permissions;
+
+    // Filter by search query (permission name or display name)
+    if (searchQuery.value.trim()) {
+        const query = searchQuery.value.toLowerCase().trim();
+        filtered = filtered.filter(permission =>
+            permission.name.toLowerCase().includes(query) ||
+            permission.display_name.toLowerCase().includes(query)
+        );
+    }
+
+    // Filter by specific role
+    if (selectedRole.value !== 'all') {
+        filtered = filtered.filter(permission =>
+            permission.roles?.some(role => role.name === selectedRole.value)
+        );
+    }
+
+    // Filter by roles
+    if (rolesFilter.value === 'with-roles') {
+        filtered = filtered.filter(permission => permission.roles_count > 0);
+    } else if (rolesFilter.value === 'without-roles') {
+        filtered = filtered.filter(permission => permission.roles_count === 0);
+    }
+
+    // Filter by users
+    if (usersFilter.value === 'with-users') {
+        filtered = filtered.filter(permission => permission.users_count > 0);
+    } else if (usersFilter.value === 'without-users') {
+        filtered = filtered.filter(permission => permission.users_count === 0);
+    }
+
+    return filtered;
+});
+
+// Clear all filters
+const clearFilters = (): void => {
+    searchQuery.value = '';
+    selectedRole.value = 'all';
+    rolesFilter.value = 'all';
+    usersFilter.value = 'all';
+};
 
 // Functions
 const resetNewPermissionForm = (): void => {
@@ -164,6 +215,79 @@ const deletePermission = (permissionId: number, permissionName: string): void =>
                 </Dialog>
             </div>
 
+            <!-- Filters -->
+            <Card>
+                <CardContent class="p-4">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-end">
+                        <!-- Search -->
+                        <div class="flex-1">
+                            <label class="text-xs font-medium text-gray-600 mb-1.5 block">Search</label>
+                            <Input
+                                v-model="searchQuery"
+                                placeholder="Search by permission name..."
+                                class="w-full"
+                            />
+                        </div>
+
+                        <!-- Filter by specific Role -->
+                        <div class="flex-1 sm:max-w-[200px]">
+                            <label class="text-xs font-medium text-gray-600 mb-1.5 block">Filter by Role</label>
+                            <select
+                                v-model="selectedRole"
+                                class="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                <option value="all">All Roles</option>
+                                <option v-for="role in props.roles" :key="role.id" :value="role.name">
+                                    {{ role.name }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Roles Filter -->
+                        <div class="flex-1 sm:max-w-[200px]">
+                            <label class="text-xs font-medium text-gray-600 mb-1.5 block">Has Roles</label>
+                            <select
+                                v-model="rolesFilter"
+                                class="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                <option value="all">All</option>
+                                <option value="with-roles">With Roles</option>
+                                <option value="without-roles">Without Roles</option>
+                            </select>
+                        </div>
+
+                        <!-- Users Filter -->
+                        <div class="flex-1 sm:max-w-[200px]">
+                            <label class="text-xs font-medium text-gray-600 mb-1.5 block">Users</label>
+                            <select
+                                v-model="usersFilter"
+                                class="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                <option value="all">All</option>
+                                <option value="with-users">With Users</option>
+                                <option value="without-users">Without Users</option>
+                            </select>
+                        </div>
+
+                        <!-- Clear Filters Button -->
+                        <Button
+                            v-if="searchQuery || selectedRole !== 'all' || rolesFilter !== 'all' || usersFilter !== 'all'"
+                            variant="outline"
+                            size="sm"
+                            @click="clearFilters"
+                            class="sm:w-auto"
+                        >
+                            Clear Filters
+                        </Button>
+                    </div>
+
+                    <!-- Results count -->
+                    <div v-if="filteredPermissions.length !== props.permissions.length" class="mt-3 text-sm text-gray-600">
+                        Showing {{ filteredPermissions.length }} of {{ props.permissions.length }} permissions
+                    </div>
+                </CardContent>
+            </Card>
+
             <!-- Permissions Table -->
             <Card>
                 <CardContent class="p-0">
@@ -180,11 +304,22 @@ const deletePermission = (permissionId: number, permissionName: string): void =>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 bg-white">
-                                <tr v-for="permission in props.permissions" :key="permission.id" class="hover:bg-gray-50/50 transition-colors">
+                                <tr v-for="permission in filteredPermissions" :key="permission.id" class="hover:bg-gray-50/50 transition-colors">
                                     <!-- Permission Name -->
                                     <td class="px-4 py-4">
                                         <div class="flex items-center gap-3">
-                                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-sm font-semibold text-white">
+                                            <!-- Show role circles if permission has roles, otherwise show permission initial -->
+                                            <div v-if="permission.roles && permission.roles.length > 0" class="flex -space-x-2">
+                                                <div
+                                                    v-for="role in permission.roles"
+                                                    :key="role.id"
+                                                    :title="role.name"
+                                                    class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-sm font-semibold text-white border-2 border-white"
+                                                >
+                                                    {{ role.name.charAt(0).toUpperCase() }}
+                                                </div>
+                                            </div>
+                                            <div v-else class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gray-400 to-gray-500 text-sm font-semibold text-white">
                                                 {{ permission.name.charAt(0).toUpperCase() }}
                                             </div>
                                             <div>
@@ -250,12 +385,16 @@ const deletePermission = (permissionId: number, permissionName: string): void =>
                                         </div>
                                     </td>
                                 </tr>
-                                <tr v-if="props.permissions.length === 0">
+                                <tr v-if="filteredPermissions.length === 0">
                                     <td colspan="6" class="px-4 py-12 text-center text-gray-500">
                                         <div class="flex flex-col items-center gap-2">
                                             <span class="text-3xl">🔑</span>
-                                            <p class="text-sm font-medium">No permissions found</p>
-                                            <p class="text-xs text-gray-400">Create your first permission to get started</p>
+                                            <p class="text-sm font-medium">
+                                                {{ props.permissions.length === 0 ? 'No permissions found' : 'No permissions match the filters' }}
+                                            </p>
+                                            <p class="text-xs text-gray-400">
+                                                {{ props.permissions.length === 0 ? 'Create your first permission to get started' : 'Try adjusting your filters' }}
+                                            </p>
                                         </div>
                                     </td>
                                 </tr>

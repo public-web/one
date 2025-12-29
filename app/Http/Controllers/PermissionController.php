@@ -104,6 +104,13 @@ class PermissionController extends Controller
             ->when($request->filled('has_users'), function ($q) {
                 $q->has('users');
             })
+            ->when($request->filled('role'), function ($q) use ($request) {
+                // Filter by specific role
+                $q->whereHas('roles', function ($roleQuery) use ($request) {
+                    $roleQuery->where('name', $request->role);
+                });
+            })
+            ->with('roles:id,name')
             ->withCount('roles', 'users')
             ->orderBy('name');
 
@@ -113,11 +120,15 @@ class PermissionController extends Controller
         // Extract permission categories for filtering
         $categories = Permission::categories();
 
+        // Get all available roles for filtering
+        $allRoles = \App\Models\Role::orderBy('name')->get(['id', 'name']);
+
         // Prepare response data
         $responseData = [
             'permissions' => $permissions,
             'categories' => $categories,
-            'filters' => $request->only(['search', 'category', 'has_roles', 'has_users']),
+            'roles' => $allRoles,
+            'filters' => $request->only(['search', 'category', 'has_roles', 'has_users', 'role']),
         ];
 
         if ($request->wantsJson()) {

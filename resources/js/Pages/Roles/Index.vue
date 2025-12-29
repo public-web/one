@@ -75,10 +75,9 @@ const createRole = (): void => {
 const openEditModal = (role: RoleData): void => {
     formErrors.value = {};
     editingRole.value = role;
-    editRole.value = {
-        name: role.name,
-        permissions: [...role.permissions],
-    };
+    // Update properties individually to maintain reactivity
+    editRole.value.name = role.name;
+    editRole.value.permissions = role.permissions ? [...role.permissions] : [];
     isEditModalOpen.value = true;
 };
 
@@ -122,7 +121,8 @@ const deleteRole = (roleId: number, roleName: string): void => {
 
 const openPermissionsModal = (role: RoleData): void => {
     permissionsRole.value = role;
-    rolePermissions.value = [...role.permissions];
+    // Ensure we have an array of permission names
+    rolePermissions.value = role.permissions ? [...role.permissions] : [];
     isPermissionsModalOpen.value = true;
 };
 
@@ -224,14 +224,13 @@ const toggleEditRolePermission = (permissionName: string): void => {
                                     <div
                                         v-for="permission in props.permissions"
                                         :key="permission.id"
-                                        class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
-                                        @click="toggleNewRolePermission(permission.name)"
+                                        class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded"
                                     >
                                         <Checkbox
-                                            :checked="newRole.permissions.includes(permission.name)"
-                                            @update:checked="() => toggleNewRolePermission(permission.name)"
+                                            :model-value="newRole.permissions.includes(permission.name)"
+                                            @update:model-value="() => toggleNewRolePermission(permission.name)"
                                         />
-                                        <div class="flex-1">
+                                        <div class="flex-1 cursor-pointer" @click="toggleNewRolePermission(permission.name)">
                                             <label class="text-sm font-medium cursor-pointer">
                                                 {{ permission.display_name }}
                                             </label>
@@ -355,7 +354,13 @@ const toggleEditRolePermission = (permissionName: string): void => {
 
                         <div>
                             <label class="text-sm font-medium">Role Name</label>
-                            <Input v-model="editRole.name" placeholder="Role name" class="mt-1" :class="{ 'border-red-500': formErrors.name }" />
+                            <input
+                                v-model="editRole.name"
+                                type="text"
+                                placeholder="Role name"
+                                class="flex h-9 w-full rounded-md border border-gray-300 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:cursor-not-allowed disabled:opacity-50 mt-1"
+                                :class="{ 'border-red-500': formErrors.name }"
+                            />
                             <p v-if="formErrors.name" class="mt-1 text-xs text-red-600">{{ formErrors.name }}</p>
                         </div>
 
@@ -365,14 +370,13 @@ const toggleEditRolePermission = (permissionName: string): void => {
                                 <div
                                     v-for="permission in props.permissions"
                                     :key="permission.id"
-                                    class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer"
-                                    @click="toggleEditRolePermission(permission.name)"
+                                    class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded"
                                 >
                                     <Checkbox
-                                        :checked="editRole.permissions.includes(permission.name)"
-                                        @update:checked="() => toggleEditRolePermission(permission.name)"
+                                        :model-value="editRole.permissions.includes(permission.name)"
+                                        @update:model-value="() => toggleEditRolePermission(permission.name)"
                                     />
-                                    <div class="flex-1">
+                                    <div class="flex-1 cursor-pointer" @click="toggleEditRolePermission(permission.name)">
                                         <label class="text-sm font-medium cursor-pointer">
                                             {{ permission.display_name }}
                                         </label>
@@ -392,7 +396,7 @@ const toggleEditRolePermission = (permissionName: string): void => {
 
             <!-- Permissions Modal -->
             <Dialog v-model:open="isPermissionsModalOpen">
-                <DialogContent class="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
+                <DialogContent :key="`permissions-${permissionsRole?.id || 0}`" class="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>
                             Manage Permissions - {{ permissionsRole?.name }}
@@ -410,14 +414,13 @@ const toggleEditRolePermission = (permissionName: string): void => {
                             <div
                                 v-for="permission in props.permissions"
                                 :key="permission.id"
-                                class="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded cursor-pointer border border-transparent hover:border-gray-200 transition-colors"
-                                @click="togglePermission(permission.name)"
+                                class="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded border border-transparent hover:border-gray-200 transition-colors"
                             >
                                 <Checkbox
-                                    :checked="isPermissionChecked(permission.name)"
-                                    @update:checked="() => togglePermission(permission.name)"
+                                    :model-value="isPermissionChecked(permission.name)"
+                                    @update:model-value="() => togglePermission(permission.name)"
                                 />
-                                <div class="flex-1">
+                                <div class="flex-1 cursor-pointer" @click="togglePermission(permission.name)">
                                     <label class="text-sm font-medium text-gray-900 cursor-pointer">
                                         {{ permission.display_name }}
                                     </label>

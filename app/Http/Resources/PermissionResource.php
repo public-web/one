@@ -19,6 +19,13 @@ class PermissionResource extends JsonResource
             'name' => $this->name,
             'display_name' => ucfirst(str_replace('.', ' ', $this->name)),
             'guard_name' => $this->guard_name,
+            'roles' => $this->when(
+                $this->relationLoaded('roles'),
+                fn() => $this->roles->map(fn($role) => [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                ])
+            ),
             'roles_count' => $this->when(
                 isset($this->roles_count),
                 $this->roles_count
